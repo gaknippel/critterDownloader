@@ -1,0 +1,15 @@
+.home-page-wrapper {
+  height: 60vh; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.home-welcome {
+  font-family: "Readex Pro", sans-serif;
+  font-size: 3rem;
+  color: white;
+  margin-bottom: 0rem; 
+}
