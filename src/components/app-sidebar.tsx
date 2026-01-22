@@ -1,4 +1,5 @@
-import { Home, Search, Settings } from "lucide-react"
+import { Download, File, Home, Settings } from "lucide-react"
+import { Link } from "react-router-dom"  // ← Add this import
 
 import {
   Sidebar,
@@ -15,19 +16,25 @@ import {
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
   },
   {
-    title: "Search",
-    url: "#",
-    icon: Search,
+    title: "Download",
+    url: "/download",
+    icon: Download,
+  },
+  {
+    title: "About",
+    url: "/about",
+    icon: File, 
   },
   {
     title: "Settings",
     url: "#",
     icon: Settings,
   },
+
 ]
 
 export function AppSidebar() {
@@ -41,10 +48,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

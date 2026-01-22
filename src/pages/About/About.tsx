@@ -1,16 +1,18 @@
-import './Home.css'
+import './About.css'
+
+
 import SplitText from '../../components/SplitText'
 
 const handleAnimationComplete = () => {
   console.log('All letters have animated!');
 };
 
-export default function Home() {
+export default function About() {
   return (
-    <div className="home-page-wrapper">
+    <div className="about-page-wrapper" style={{ fontSize: 'clamp(2rem, 4vw, 4rem)' }}>
         <SplitText
-          text="welcome to youtube downloader yo"
-          className="home-welcome"
+          text="about this app"
+          className="about-welcome-message"
           delay={15}
           duration={0.3}
           ease="power3.out"
