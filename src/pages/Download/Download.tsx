@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import './Download.css'
 import SplitText from '../../components/SplitText'
 import { Input } from '@/components/ui/input';
+import { invoke } from '@tauri-apps/api/core';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
+
 
 const handleAnimationComplete = () => {
   console.log('All letters have animated!');
@@ -10,10 +13,34 @@ const handleAnimationComplete = () => {
 
 export default function Download() {
   const [link, setLink] = useState('');
+  const [loading, setLoading] = useState(false); //loading so we can disable button when clicked
+  const [format, setFormat] = useState('video'); //video or audio format
+  const [message, setMessage] = useState(''); //message for errors or success
 
-  const handleDownload = () => {
-    // Implement download logic here
-    console.log('Downloading link:', link);
+  const handleDownload = async () => {
+    if (!link.trim()) {
+      setMessage("please enter a valid youtube link.")
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
+    try{
+      const result = await invoke ('download_video', {
+        url: link,
+        format: format
+      });
+      setMessage('download complete!');
+      console.log('download result : ', result);
+    }
+    catch (error) {
+      setMessage(`Error: ${String(error)}`);
+      console.error('download error: ', error);
+    }
+    finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,17 +58,53 @@ export default function Download() {
           rootMargin="-100px"
           textAlign="center"
           onLetterAnimationComplete={handleAnimationComplete}
-          />
-          <div className="flex w-full max-w-sm items-center space-x-2 m-auto">
+        />
+        
+        <div className="flex flex-col w-full max-w-sm m-auto space-y-4">
+          {/* Format selector */}
+          <div className="flex gap-2 mt-4">
+            <Button 
+              variant={format === 'video' ? 'default' : 'outline'}
+              onClick={() => setFormat('video')}
+            >
+              Video
+            </Button>
+            <Button 
+              variant={format === 'audio' ? 'default' : 'outline'}
+              onClick={() => setFormat('audio')}
+            >
+              Audio Only
+            </Button>
+          </div>
+
+          {/* Input and download button */}
+          <div className="flex w-full items-center space-x-2">
             <Input
               type="text"
               placeholder="Enter YouTube link"
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              className="mt-4"
+              disabled={loading}
             />
-            <Button onClick={handleDownload} className="mt-4">Download</Button>
+            <Button onClick={handleDownload} disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Downloading...
+                </>
+              ) : (
+                'Download'
+              )}
+            </Button>
           </div>
+
+          {/* Status message */}
+          {message && (
+            <p className={`text-sm ${message.includes('Error') ? 'text-red-500' : 'text-green-500'}`}>
+              {message}
+            </p>
+          )}
+        </div>
     </div>
   )
 }
