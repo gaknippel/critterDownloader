@@ -5,6 +5,11 @@ import { Input } from '@/components/ui/input';
 import { invoke } from '@tauri-apps/api/core';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert"
 
 
 const handleAnimationComplete = () => {
@@ -49,7 +54,7 @@ export default function Download() {
           text="start downloading!"
           className="download-welcome-message"
           delay={15}
-          duration={0.3}
+          duration={0.6}
           ease="power3.out"
           splitType="chars"
           from={{ opacity: 0, y: 40 }}
@@ -62,7 +67,7 @@ export default function Download() {
         
         <div className="flex flex-col w-full max-w-sm m-auto space-y-4">
           {/* Format selector */}
-          <div className="flex gap-2 mt-4">
+          <div className="flex gap-2 mt-4 font-(sans-serif:--Readex Pro">
             <Button 
               variant={format === 'video' ? 'default' : 'outline'}
               onClick={() => setFormat('video')}
@@ -100,9 +105,11 @@ export default function Download() {
 
           {/* Status message */}
           {message && (
-            <p className={`text-sm ${message.includes('Error') ? 'text-red-500' : 'text-green-500'}`}>
-              {message}
-            </p>
+            <Alert variant={message.includes('Error') ? 'destructive' : 'default'}>
+              <AlertDescription>
+                {message}
+              </AlertDescription>
+            </Alert>
           )}
         </div>
     </div>

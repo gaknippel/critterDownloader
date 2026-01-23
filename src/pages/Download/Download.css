@@ -20,6 +20,13 @@
   margin-top: 10rem;
 }
 
+.basic-text {
+  font-family: "Readex Pro", sans-serif;
+  font-size: 3rem;
+  color: white;
+  text-align: center;
+}
+
 .download-content-box {
   width: 100%;
   max-width: 800px; 
