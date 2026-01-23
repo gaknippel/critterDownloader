@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Download.css'
 import SplitText from '../../components/SplitText'
 import { Input } from '@/components/ui/input';
@@ -16,11 +16,22 @@ const handleAnimationComplete = () => {
   console.log('All letters have animated!');
 };
 
+
 export default function Download() {
   const [link, setLink] = useState('');
   const [loading, setLoading] = useState(false); //loading so we can disable button when clicked
   const [format, setFormat] = useState('video'); //video or audio format
   const [message, setMessage] = useState(''); //message for errors or success
+
+    useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('');
+      }, 5000); // 5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   const handleDownload = async () => {
     if (!link.trim()) {
@@ -66,7 +77,6 @@ export default function Download() {
         />
         
         <div className="flex flex-col w-full max-w-sm m-auto space-y-4">
-          {/* Format selector */}
           <div className="flex gap-2 mt-4 font-(sans-serif:--Readex Pro">
             <Button 
               variant={format === 'video' ? 'default' : 'outline'}
@@ -82,7 +92,6 @@ export default function Download() {
             </Button>
           </div>
 
-          {/* Input and download button */}
           <div className="flex w-full items-center space-x-2">
             <Input
               type="text"
@@ -103,15 +112,19 @@ export default function Download() {
             </Button>
           </div>
 
+        </div>
+
           {/* Status message */}
           {message && (
-            <Alert variant={message.includes('Error') ? 'destructive' : 'default'}>
+            <Alert 
+              variant={message.includes('Error') ? 'destructive' : 'default'}
+              className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-50"
+            >
               <AlertDescription>
                 {message}
               </AlertDescription>
             </Alert>
           )}
-        </div>
     </div>
   )
 }
