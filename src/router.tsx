@@ -3,6 +3,7 @@ import App from './App'
 import Home from './pages/Home/Home'
 import About from './pages/About/About'
 import Download from './pages/Download/Download'
+import Settings from './pages/Settings/Settings'
 
 
 const router = createBrowserRouter([
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: 'download',
         element: <Download />,
+      },
+      {
+        path: 'settings',
+        element: <Settings />,
       },
     ],
   },
