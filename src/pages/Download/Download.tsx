@@ -60,7 +60,7 @@ export default function Download() {
   };
 
   return (
-    <div className="home-page-wrapper">
+    <div className="download-page-wrapper">
         <SplitText
           text="start downloading!"
           className="download-welcome-message"
@@ -82,20 +82,20 @@ export default function Download() {
               variant={format === 'video' ? 'default' : 'outline'}
               onClick={() => setFormat('video')}
             >
-              Video
+              video
             </Button>
             <Button 
               variant={format === 'audio' ? 'default' : 'outline'}
               onClick={() => setFormat('audio')}
             >
-              Audio Only
+              audio only
             </Button>
           </div>
 
           <div className="flex w-full items-center space-x-2">
             <Input
               type="text"
-              placeholder="Enter YouTube link"
+              placeholder="enter youtube link"
               value={link}
               onChange={(e) => setLink(e.target.value)}
               disabled={loading}
@@ -104,7 +104,7 @@ export default function Download() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Downloading...
+                  downloading...
                 </>
               ) : (
                 'Download'

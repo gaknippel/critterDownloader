@@ -1,85 +1,82 @@
 .about-page-wrapper {
+  min-height: 100vh;
   width: 100%;
-  flex: 1; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  
-  justify-content: flex-start; 
-  
-  padding: 120px 20px 40px 20px;
-  
+  padding: 60px 20px 40px 20px;
   box-sizing: border-box;
 }
 
 .about-welcome-message {
   font-family: "Readex Pro", sans-serif;
-  font-size: 3rem;
+  font-size:300%;
   color: white;
   text-align: center;
-  margin-top: -5rem;
+  margin-bottom: 40px;
 }
 
 .about-content-box {
   width: 100%;
-  max-width: 800px; 
-  background-color: rgba(32, 32, 32, 0.5); 
+  max-width: 800px;
+  background-color: rgba(32, 32, 32, 0.6);
   border-radius: 20px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  padding: 40px;
-  
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  padding: 50px;
   color: #e0e0e0;
   font-family: "Readex Pro", sans-serif;
-  line-height: 1.6;
-  margin-top: 5%;
+  line-height: 1.8;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .about-section {
-  margin-bottom: 30px; 
+  margin-bottom: 35px;
+}
+
+.about-section:last-child {
+  margin-bottom: 0;
 }
 
 .about-content-box h3 {
   color: #ffffff;
   font-size: 1.5rem;
   margin-top: 0;
-  margin-bottom: 10px;
-  
-  display: flex; 
-  align-items: center; 
-  width: fit-content; 
-  
-  border-bottom: 2px solid #c6812d; 
-  padding-bottom: 5px;
-}
-
-.header-icon {
-  height: 65px; 
-  width: auto;  
-  margin-left: 10px; 
-  display: block;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #ffbe0a;
+  padding-bottom: 8px;
+  width: fit-content;
 }
 
 .about-content-box p {
   margin: 0;
   font-size: 1.1rem;
+  color: #d0d0d0;
 }
 
 @media (max-width: 768px) {
   .about-page-wrapper {
-    padding-top: 100px; 
+    padding: 40px 15px 30px 15px;
   }
 
   .about-content-box {
-    padding: 25px;
+    padding: 30px;
   }
-  .welcome-message {
+
+  .about-welcome-message {
     font-size: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 30px;
   }
+
   .about-content-box h3 {
     font-size: 1.3rem;
   }
-  .header-icon {
-    height: 25px; 
+
+  .about-content-box p {
+    font-size: 1rem;
+  }
+
+  .about-section {
+    margin-bottom: 30px;
   }
 }
