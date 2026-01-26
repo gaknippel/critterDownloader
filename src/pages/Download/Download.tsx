@@ -3,31 +3,47 @@ import './Download.css'
 import SplitText from '../../components/SplitText'
 import { Input } from '@/components/ui/input';
 import { invoke } from '@tauri-apps/api/core';
+import { Store } from '@tauri-apps/plugin-store';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import {
   Alert,
   AlertDescription,
-  AlertTitle,
 } from "@/components/ui/alert"
-
 
 const handleAnimationComplete = () => {
   console.log('All letters have animated!');
 };
 
-
 export default function Download() {
   const [link, setLink] = useState('');
-  const [loading, setLoading] = useState(false); //loading so we can disable button when clicked
-  const [format, setFormat] = useState('video'); //video or audio format
-  const [message, setMessage] = useState(''); //message for errors or success
+  const [loading, setLoading] = useState(false);
+  const [format, setFormat] = useState('video');
+  const [message, setMessage] = useState('');
+  const [downloadPath, setDownloadPath] = useState<string | null>(null);
 
-    useEffect(() => {
+  // Load download path from settings
+useEffect(() => {
+  const loadPath = async () => {
+    try {
+      const store = await Store.load('settings.json');
+      const savedPath = await store.get<string>('downloadPath');
+      console.log('Loaded download path:', savedPath);
+      setDownloadPath(savedPath || null);
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      setDownloadPath(null);
+    }
+  };
+  
+  loadPath();
+}, []);
+
+  useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
         setMessage('');
-      }, 5000); // 5 seconds
+      }, 5000);
 
       return () => clearTimeout(timer);
     }
@@ -42,10 +58,11 @@ export default function Download() {
     setLoading(true);
     setMessage('');
 
-    try{
-      const result = await invoke ('download_video', {
+    try {
+      const result = await invoke('download_video', {
         url: link,
-        format: format
+        format: format,
+        downloadPath: downloadPath
       });
       setMessage('download complete!');
       console.log('download result : ', result);
@@ -112,19 +129,23 @@ export default function Download() {
             </Button>
           </div>
 
+          {downloadPath && (
+            <p className="text-sm text-muted-foreground">
+              Saving to: {downloadPath}
+            </p>
+          )}
         </div>
 
-          {/* Status message */}
-          {message && (
-            <Alert 
-              variant={message.includes('Error') ? 'destructive' : 'default'}
-              className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-50"
-            >
-              <AlertDescription>
-                {message}
-              </AlertDescription>
-            </Alert>
-          )}
+        {message && (
+          <Alert 
+            variant={message.includes('Error') ? 'destructive' : 'default'}
+            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-50"
+          >
+            <AlertDescription>
+              {message}
+            </AlertDescription>
+          </Alert>
+        )}
     </div>
   )
 }

@@ -14,3 +14,11 @@
   max-width: 32rem; /* matches max-w-lg */
   min-height: 400px; /* adjust this value based on your content */
 }
+
+.about-welcome-message {
+  font-family: "Readex Pro", sans-serif;
+  font-size: 3rem;
+  color: hsl(var(--foreground));
+  text-align: center;
+  padding-bottom: 40px;
+}

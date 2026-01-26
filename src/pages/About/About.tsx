@@ -1,5 +1,8 @@
 import './About.css'
 
+import SplitText from '../../components/SplitText'
+
+
 import {
   Accordion,
   AccordionContent,
@@ -28,11 +31,30 @@ const items = [
   },
 ]
 
+const handleAnimationComplete = () => {
+  console.log('All letters have animated!');
+};
+
 
 
 export default function About() {
   return (
     <div className='about-page-wrapper'>
+
+        <SplitText
+          text="start downloading!"
+          className="about-welcome-message"
+          delay={15}
+          duration={0.6}
+          ease="power3.out"
+          splitType="chars"
+          from={{ opacity: 0, y: 40 }}
+          to={{ opacity: 1, y: 0 }}
+          threshold={0.1}
+          rootMargin="-100px"
+          textAlign="center"
+          onLetterAnimationComplete={handleAnimationComplete}
+        />
       <div className='accordion-container'>
         <Accordion
           type="single"

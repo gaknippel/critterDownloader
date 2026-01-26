@@ -20,6 +20,15 @@ fn find_yt_dlp() -> Result<String, String> {
 #[command]
 fn download_video(url: String, format: String) -> Result<String, String> {
     let yt_dlp_path = find_yt_dlp()?;
+
+    let output_template = if let Some(path) = download_path 
+    {
+        format!("{}/%(title)s.%(ext)s", path)
+    } 
+    else 
+    {
+        "~/Downloads/%(title)s.%(ext)s".to_string()
+    };
     
     let output = if format == "audio" 
     {
@@ -62,6 +71,7 @@ fn download_video(url: String, format: String) -> Result<String, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![download_video]) // Register command
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
