@@ -9,6 +9,6 @@
 .home-welcome {
   font-family: "Readex Pro", sans-serif;
   font-size: 3rem;
-  color: white;
   margin-top: 2rem;
+  color: hsl(var(--foreground));
 }

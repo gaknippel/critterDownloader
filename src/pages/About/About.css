@@ -1,5 +1,5 @@
 .about-page-wrapper {
-  min-height: 100vh;
+  min-height: 60vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -8,75 +8,9 @@
   box-sizing: border-box;
 }
 
-.about-welcome-message {
-  font-family: "Readex Pro", sans-serif;
-  font-size:300%;
-  color: white;
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.about-content-box {
+/* Add this class to wrap your accordion */
+.accordion-container {
   width: 100%;
-  max-width: 800px;
-  background-color: rgba(32, 32, 32, 0.6);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  padding: 50px;
-  color: #e0e0e0;
-  font-family: "Readex Pro", sans-serif;
-  line-height: 1.8;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.about-section {
-  margin-bottom: 35px;
-}
-
-.about-section:last-child {
-  margin-bottom: 0;
-}
-
-.about-content-box h3 {
-  color: #ffffff;
-  font-size: 1.5rem;
-  margin-top: 0;
-  margin-bottom: 15px;
-  border-bottom: 2px solid #ffbe0a;
-  padding-bottom: 8px;
-  width: fit-content;
-}
-
-.about-content-box p {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #d0d0d0;
-}
-
-@media (max-width: 768px) {
-  .about-page-wrapper {
-    padding: 40px 15px 30px 15px;
-  }
-
-  .about-content-box {
-    padding: 30px;
-  }
-
-  .about-welcome-message {
-    font-size: 2rem;
-    margin-bottom: 30px;
-  }
-
-  .about-content-box h3 {
-    font-size: 1.3rem;
-  }
-
-  .about-content-box p {
-    font-size: 1rem;
-  }
-
-  .about-section {
-    margin-bottom: 30px;
-  }
+  max-width: 32rem; /* matches max-w-lg */
+  min-height: 400px; /* adjust this value based on your content */
 }

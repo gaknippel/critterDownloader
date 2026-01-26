@@ -10,7 +10,7 @@
 .download-welcome-message {
   font-family: "Readex Pro", sans-serif;
   font-size: 3rem;
-  color: white;
+  color: hsl(var(--foreground));
   text-align: center;
   margin-top: 10rem;
 }
