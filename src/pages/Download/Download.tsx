@@ -23,21 +23,15 @@ export default function Download() {
   const [downloadPath, setDownloadPath] = useState<string | null>(null);
 
   // Load download path from settings
-useEffect(() => {
-  const loadPath = async () => {
-    try {
+  useEffect(() => {
+    const loadPath = async () => {
       const store = await Store.load('settings.json');
       const savedPath = await store.get<string>('downloadPath');
-      console.log('Loaded download path:', savedPath);
       setDownloadPath(savedPath || null);
-    } catch (error) {
-      console.error('Error loading settings:', error);
-      setDownloadPath(null);
-    }
-  };
-  
-  loadPath();
-}, []);
+    };
+    
+    loadPath();
+  }, []);
 
   useEffect(() => {
     if (message) {
