@@ -132,7 +132,7 @@ export default function Download() {
 
           {downloadPath && (
             <p className="text-sm text-muted-foreground">
-              Saving to: {downloadPath}
+              saving to: {downloadPath}
             </p>
           )}
         </div>

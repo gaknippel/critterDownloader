@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
-import { homeDir } from '@tauri-apps/api/path';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Store } from '@tauri-apps/plugin-store';

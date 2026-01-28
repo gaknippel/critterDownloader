@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "youtubedownloader",
+  "productName": "critterDownloader",
   "version": "0.1.0",
-  "identifier": "com.burri.youtubedownloader",
+  "identifier": "com.burri.critterDownloader",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",

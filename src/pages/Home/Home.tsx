@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="home-page-wrapper">
         <SplitText
-          text="welcome! :)"
+          text="welcome to critterDownloader!"
           className="home-welcome"
           delay={15}
           duration={0.6}
