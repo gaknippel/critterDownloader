@@ -49,6 +49,13 @@ export default function Download() {
       return;
     }
 
+  const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/).+$/;
+    if (!youtubeRegex.test(link.trim())){
+      setMessage("please enter a valid youtube link.");
+      return;
+    }
+
+
     setLoading(true);
     setMessage('');
 
