@@ -25,13 +25,17 @@ export default function Settings() {
 
     useEffect(() => {
     const initStore = async () => {
+      console.log('initializing store');
       const newStore = await Store.load('settings.json');
+      console.log('store loaded:', newStore);
       setStore(newStore);
       
       // Load saved download path
       const savedPath = await newStore.get<string>('downloadPath');
+      console.log('loaded savedPath from store:', savedPath);
       if (savedPath) {
         setDownloadPath(savedPath);
+        console.log('set downloadPath state to:', savedPath);
       }
     };
     
@@ -40,15 +44,25 @@ export default function Settings() {
 
 const handleBrowse = async () => {
   try {
+    console.log('Browse clicked, store is: ', store);
     const selected = await open({
       directory: true,
       multiple: false,
     });
+
+    console.log('selected path: ', selected);
     
     if (selected && store) {
+      console.log('setting downloadPath to:', selected);
       setDownloadPath(selected);
+      console.log('saving to store...');
       await store.set('downloadPath', selected);
       await store.save();
+      console.log('saved successfully!');
+    }
+    else 
+    {
+      console.log('Either no selection or no store. selected:', selected, 'store:', store);
     }
   } catch (error) {
     console.error('Browse error:', error);

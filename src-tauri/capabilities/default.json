@@ -7,6 +7,10 @@
     "core:window:allow-create",
     "core:window:allow-close",
     "core:default",
-    "dialog:allow-open"
+    "dialog:allow-open",
+    "store:allow-get",
+    "store:allow-set",
+    "store:allow-load",
+    "store:allow-save"
   ]
 }
