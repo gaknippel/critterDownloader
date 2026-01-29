@@ -1,7 +1,58 @@
-# Tauri + React + Typescript
+# critterDownloader
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+a simple YouTube video and audio downloader.
 
-## Recommended IDE Setup
+## features
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- downloading video & audio in the BEST quality with no dumb subscriptions
+- simple ui
+- no bloated ads
+- ability to save to path
+- changeable theme
+
+## installation
+
+download the latest release and run the installer.
+
+## Usage
+
+1. paste a YouTube link
+2. choose video or audio
+3. click download! easy!
+
+## built With
+
+- tauri
+- react
+- yt-dlp
+- shadcnui
+- reactbits
+
+---
+# patch notes!
+
+## v1.0.0 - january 28, 2026
+### initial release
+- chill video downloader made with tauri and shadcnui!
+- no pesky ads or sketchy downloaders
+- fully open source
+
+---
+
+## upcoming features 
+- [ ] download queue
+- [ ] multiple simultaneous downloads
+- [ ] playlist support
+- [ ] download history
+- [ ] video quality selection
+
+---
+
+**need help?** [open an issue on github.](https://github.com/gaknippel/critterDownloader/issues)
+
+## follow my main on YouTube!
+[My channel:](https://www.youtube.com/@critterfarts) i make souls-like videos and shorts, and just clips of me and my friends messing around 😃
+
+
+<img src="https://github.com/gaknippel/AEAIHelper/blob/main/src/js/assets/steamhappy-steam.gif"
+alt="steam happy :D" title="happy :D" width="200" height="150"/>
