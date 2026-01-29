@@ -3,7 +3,7 @@
 a simple YouTube video and audio downloader.
 
 <div align="center">
-  <img src="src/assets/ytdlpAD.gif" alt="Critter Logo" width="300"/>
+  <img src="ytdlpAD.gif" alt="Critter Logo" />
 </div>
 
 ## features
