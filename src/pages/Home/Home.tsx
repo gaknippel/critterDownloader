@@ -3,6 +3,7 @@ import SplitText from '../../components/SplitText'
 import steamHappy from '../../assets/steamHappy.gif'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { fetch } from '@tauri-apps/plugin-http'
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
@@ -57,7 +58,7 @@ export default function Home() {
 
       <div className="patch-notes-container">
         <h2 className="patch-notes-title"><i>patch notes</i></h2>
-        <div className="patch-notes-content">
+        <ScrollArea className="h-[400px] md:h-[500px] rounded-md border p-4 text-left">
           <ReactMarkdown
             components={{
               h1: ({node, ...props}) => <h1 className="markdown-h1" {...props} />,
@@ -73,7 +74,7 @@ export default function Home() {
           >
             {patchNotes}
           </ReactMarkdown>
-        </div>
+        </ScrollArea>
       </div>
     </div>
   )

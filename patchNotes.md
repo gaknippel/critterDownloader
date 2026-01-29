@@ -1,5 +1,3 @@
-# patch Notes
-
 ## v1.0.0 - january 28, 2026
 ### initial release
 - chill video downloader made with tauri and shadcnui!

@@ -37,14 +37,7 @@
   text-align: left;
 }
 
-.patch-notes-content {
-  max-height: 500px;
-  overflow-y: auto;
-  text-align: left;
-  padding: 1.5rem;
-  color: hsl(var(--patchNotes-BG));
-  border-radius: 8px;
-}
+
 
 /* Markdown styling */
 .markdown-h1 {
@@ -97,14 +90,4 @@
 
 .markdown-link:hover {
   color: #93c5fd;
-}
-
-@media (max-width: 768px) {
-  .home-welcome {
-    font-size: 2rem;
-  }
-  
-  .patch-notes-content {
-    max-height: 400px;
-  }
 }
