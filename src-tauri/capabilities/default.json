@@ -4,13 +4,20 @@
   "description": "Capability for the main window",
   "windows": ["main"],
   "permissions": [
-    "core:window:allow-create",
-    "core:window:allow-close",
     "core:default",
     "dialog:allow-open",
     "store:allow-get",
     "store:allow-set",
     "store:allow-load",
-    "store:allow-save"
+    "store:allow-save",
+    "http:default",
+    {
+      "identifier": "http:allow-fetch",
+      "allow": [
+        {
+          "url": "https://raw.githubusercontent.com/gaknippel/critterDownloader/*"
+        }
+      ]
+    }
   ]
 }

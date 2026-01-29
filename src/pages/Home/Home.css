@@ -1,14 +1,108 @@
 .home-page-wrapper {
-  height: 80vh; 
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding-bottom: 2rem;
+}
+
+.home-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
 }
 
 .home-welcome {
   font-family: "Readex Pro", sans-serif;
   font-size: 3rem;
   margin-top: 2rem;
-  color: hsl(var(--foreground));
+}
+
+.patch-notes-container {
+  width: 100%;
+  max-width: 800px;
+  margin-top: 3rem;
+  padding: 0 2rem;
+}
+
+.patch-notes-title {
+  font-family: "Readex Pro", sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.patch-notes-content {
+  max-height: 500px;
+  overflow-y: auto;
+  text-align: left;
+  padding: 1.5rem;
+  background-color: rgb(242, 242, 242);
+  border-radius: 8px;
+}
+
+/* Markdown styling */
+.markdown-h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.markdown-ul, .markdown-ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.markdown-code {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.markdown-link {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.markdown-link:hover {
+  color: #93c5fd;
+}
+
+@media (max-width: 768px) {
+  .home-welcome {
+    font-size: 2rem;
+  }
+  
+  .patch-notes-content {
+    max-height: 400px;
+  }
 }
