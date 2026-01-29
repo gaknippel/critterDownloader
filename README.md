@@ -49,3 +49,10 @@ download the latest release and run the installer.
 ---
 
 **need help?** [open an issue on github.](https://github.com/gaknippel/critterDownloader/issues)
+
+## follow my main on YouTube!
+[My channel:](https://www.youtube.com/@critterfarts) i make souls-like videos and shorts, and just clips of me and my friends messing around 😃
+
+
+<img src="https://github.com/gaknippel/AEAIHelper/blob/main/src/js/assets/steamhappy-steam.gif"
+alt="steam happy :D" title="happy :D" width="200" height="150"/>
