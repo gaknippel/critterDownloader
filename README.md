@@ -2,6 +2,10 @@
 
 a simple YouTube video and audio downloader.
 
+<div align="center">
+  <img src="ytdlpAD.gif" alt="Critter Logo" />
+</div>
+
 ## features
 
 - downloading video & audio in the BEST quality with no dumb subscriptions
