@@ -18,6 +18,8 @@
   font-family: "Readex Pro", sans-serif;
   font-size: 3rem;
   margin-top: 2rem;
+  color: hsl(var(--foreground));
+
 }
 
 .patch-notes-container {
@@ -40,7 +42,7 @@
   overflow-y: auto;
   text-align: left;
   padding: 1.5rem;
-  background-color: rgb(242, 242, 242);
+  color: hsl(var(--patchNotes-BG));
   border-radius: 8px;
 }
 

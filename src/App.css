@@ -114,6 +114,7 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --patchNotes-BG: oklch(0.269 0 0);
 }
 
 .light {
@@ -150,6 +151,7 @@
 --sidebar-accent-foreground: oklch(20% 0.01 271.152);
 --sidebar-border: oklch(0% 0 0);
 --sidebar-ring: oklch(0% 0 0);
+--patchNotes-BG: oklch(80.78% 0.00009 271.152);
 }
 
 @layer base {
