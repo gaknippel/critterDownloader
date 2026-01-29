@@ -2,8 +2,9 @@
 
 a simple YouTube video and audio downloader.
 
-<img src="https://github.com/gaknippel/critterDownloader/main/src/assets/ytdlpAD.gif"
-alt="steam happy :D" title="happy :D" width="200" height="150"/>
+<div align="center">
+  <img src="src/assets/ytdlpAD.gif" alt="Critter Logo" width="300"/>
+</div>
 
 ## features
 
