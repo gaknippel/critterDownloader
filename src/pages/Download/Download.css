@@ -12,7 +12,22 @@
   font-size: 3rem;
   color: hsl(var(--foreground));
   text-align: center;
-  margin-top: 10rem;
+}
+
+.download-page-wrapper {
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2rem; /* Add gap between the sections */
+}
+
+.download-form-container {
+  width: 100%;
+  max-width: 400px; /* Equivalent to max-w-sm in Tailwind */
+  margin: 0 auto; /* Center the form horizontally */
 }
 
 .basic-text {

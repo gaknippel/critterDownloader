@@ -25,7 +25,7 @@ export default function UpdateChecker() {
         setUpdateVersion(update.version);
       }
     } catch (error) {
-      console.error('Failed to check for updates:', error);
+      console.error('failed to check for updates:', error);
     }
   };
 
@@ -39,7 +39,7 @@ export default function UpdateChecker() {
         await relaunch();
       }
     } catch (error) {
-      console.error('Failed to install update:', error);
+      console.error('failed to install update:', error);
       setDownloading(false);
     }
   };
@@ -48,9 +48,9 @@ export default function UpdateChecker() {
 
   return (
     <Alert className="fixed top-4 right-4 w-96 z-50">
-      <AlertTitle>Update Available! 🎉</AlertTitle>
+      <AlertTitle>update available!</AlertTitle>
       <AlertDescription>
-        <p className="mb-2">Version {updateVersion} is available.</p>
+        <p className="mb-2">version {updateVersion} is available.</p>
         <Button 
           onClick={installUpdate} 
           disabled={downloading}

@@ -34,6 +34,10 @@ download the latest release and run the installer.
 
 ---
 # patch notes!
+## v1.1.1 - january 30, 2026
+- fixed some formatting on the download page that blocked the welcome text
+
+---
 
 ## v1.1.0 - january 29, 2026
 
@@ -41,7 +45,6 @@ download the latest release and run the installer.
 - added "updates" panel in settings to update yt-dlp
 
 ---
-
 
 ## v1.0.0 - january 28, 2026
 ### initial release
