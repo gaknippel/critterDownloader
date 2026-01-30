@@ -79,6 +79,7 @@ export default function Download() {
 
   return (
     <div className="download-page-wrapper">
+    <div className="download-welcome-container">
         <SplitText
           text="start downloading!"
           className="download-welcome-message"
@@ -93,7 +94,9 @@ export default function Download() {
           textAlign="center"
           onLetterAnimationComplete={handleAnimationComplete}
         />
+    </div>
         
+    <div className="download-form-container">
         <div className="flex flex-col w-full max-w-sm m-auto space-y-4">
           <div className="flex gap-2 mt-4 font-(sans-serif:--Readex Pro">
             <Button 
@@ -136,6 +139,7 @@ export default function Download() {
             </p>
           )}
         </div>
+    </div>
 
         {message && (
           <Alert 
