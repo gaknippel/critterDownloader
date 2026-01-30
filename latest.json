@@ -1,13 +1,13 @@
 {
-  "version": "v1.0.0",
-  "notes": "Initial release with video and audio downloads",
+  "version": "v1.1.0",
+  "notes": "added an updater",
   "pub_date": "2026-01-29T12:00:00Z",
   "platforms": 
   {
     "windows-x86_64": 
     {
       "signature": "",
-      "url": "https://github.com/gaknippel/critterDownloader/releases/download/v1.0.0/critterDownloader_1.0.0_x64_en-US.msi"
+      "url": "https://github.com/gaknippel/critterDownloader/releases/download/v1.0.0/critterDownloader_1.1.0_x64_en-US.msi"
     }
   }
 }
