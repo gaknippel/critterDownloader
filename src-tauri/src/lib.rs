@@ -1,21 +1,19 @@
 use tauri::command;
 use tauri::Manager;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 fn find_yt_dlp(app_handle: &tauri::AppHandle) -> Result<String, String> {
-
-    if let Ok(resource_path) = app_handle.path().resource_dir() 
-    {
+    // Try bundled yt-dlp first
+    if let Ok(resource_path) = app_handle.path().resource_dir() {
         let bundled_path = resource_path.join("binaries").join("yt-dlp.exe");
-        if bundled_path.exists() 
-        {
-            if let Some(path_str) = bundled_path.to_str() 
-            {
+        if bundled_path.exists() {
+            if let Some(path_str) = bundled_path.to_str() {
                 return Ok(path_str.to_string());
             }
         }
     }
-
+    
+    // Fallback to system yt-dlp
     let possible_paths = vec![
         "yt-dlp",
         r"C:\Users\burri\AppData\Local\Microsoft\WinGet\Links\yt-dlp.exe",
@@ -28,11 +26,16 @@ fn find_yt_dlp(app_handle: &tauri::AppHandle) -> Result<String, String> {
         }
     }
     
-    Err("yt-dlp not found. please install it.".to_string())
+    Err("yt-dlp not found.".to_string())
 }
 
 #[command]
-async fn download_video(app_handle: tauri::AppHandle, url: String, format: String, download_path: Option<String>) -> Result<String, String> {
+async fn download_video(
+    app_handle: tauri::AppHandle,
+    url: String, 
+    format: String, 
+    download_path: Option<String>
+) -> Result<String, String> {
     let yt_dlp_path = find_yt_dlp(&app_handle)?;
     
     let output_template = if let Some(path) = download_path {
@@ -41,21 +44,32 @@ async fn download_video(app_handle: tauri::AppHandle, url: String, format: Strin
         "~/Downloads/%(title)s.%(ext)s".to_string()
     };
     
-    // Run in a blocking task to avoid freezing UI
     let result = tokio::task::spawn_blocking(move || {
+        let mut cmd = Command::new(&yt_dlp_path);
+        
+        // Hide console window on Windows
+        #[cfg(target_os = "windows")]
+        {
+            use std::os::windows::process::CommandExt;
+            const CREATE_NO_WINDOW: u32 = 0x08000000;
+            cmd.creation_flags(CREATE_NO_WINDOW);
+        }
+        
+        // Suppress output
+        cmd.stdout(Stdio::null())
+           .stderr(Stdio::piped());
+        
         if format == "audio" {
-            Command::new(&yt_dlp_path)
-                .arg("-x")
-                .arg("--audio-format").arg("mp3")
-                .arg("-o").arg(&output_template)
-                .arg(&url)
-                .output()
+            cmd.arg("-x")
+               .arg("--audio-format").arg("mp3")
+               .arg("-o").arg(&output_template)
+               .arg(&url)
+               .output()
         } else {
-            Command::new(&yt_dlp_path)
-                .arg("-f").arg("bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best")
-                .arg("-o").arg(&output_template)
-                .arg(&url)
-                .output()
+            cmd.arg("-f").arg("bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best")
+               .arg("-o").arg(&output_template)
+               .arg(&url)
+               .output()
         }
     })
     .await
@@ -64,7 +78,7 @@ async fn download_video(app_handle: tauri::AppHandle, url: String, format: Strin
     match result {
         Ok(output) => {
             if output.status.success() {
-                Ok(String::from_utf8_lossy(&output.stdout).to_string())
+                Ok("Download completed successfully!".to_string())
             } else {
                 Err(String::from_utf8_lossy(&output.stderr).to_string())
             }
@@ -78,8 +92,8 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![download_video])
         .run(tauri::generate_context!())
