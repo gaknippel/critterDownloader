@@ -18,13 +18,13 @@ a simple YouTube video and audio downloader.
 
 download the latest release and run the installer.
 
-## Usage
+## usage
 
 1. paste a YouTube link
 2. choose video or audio
 3. click download! easy!
 
-## built With
+## built with
 
 - tauri
 - react
