@@ -1,7 +1,21 @@
 use tauri::command;
+use tauri::Manager;
 use std::process::Command;
 
-fn find_yt_dlp() -> Result<String, String> {
+fn find_yt_dlp(app_handle: &tauri::AppHandle) -> Result<String, String> {
+
+    if let Ok(resource_path) = app_handle.path().resource_dir() 
+    {
+        let bundled_path = resource_path.join("binaries").join("yt-dlp.exe");
+        if bundled_path.exists() 
+        {
+            if let Some(path_str) = bundled_path.to_str() 
+            {
+                return Ok(path_str.to_string());
+            }
+        }
+    }
+
     let possible_paths = vec![
         "yt-dlp",
         r"C:\Users\burri\AppData\Local\Microsoft\WinGet\Links\yt-dlp.exe",
@@ -18,8 +32,8 @@ fn find_yt_dlp() -> Result<String, String> {
 }
 
 #[command]
-async fn download_video(url: String, format: String, download_path: Option<String>) -> Result<String, String> {
-    let yt_dlp_path = find_yt_dlp()?;
+async fn download_video(app_handle: tauri::AppHandle, url: String, format: String, download_path: Option<String>) -> Result<String, String> {
+    let yt_dlp_path = find_yt_dlp(&app_handle)?;
     
     let output_template = if let Some(path) = download_path {
         format!("{}/%(title)s.%(ext)s", path)
@@ -66,6 +80,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![download_video])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

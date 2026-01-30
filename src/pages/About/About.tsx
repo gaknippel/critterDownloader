@@ -42,7 +42,7 @@ export default function About() {
     <div className='about-page-wrapper'>
 
         <SplitText
-          text="start downloading!"
+          text="about this app"
           className="about-welcome-message"
           delay={15}
           duration={0.6}
