@@ -87,6 +87,41 @@ async fn download_video(
     }
 }
 
+#[command]
+async fn update_ytdlp(app_handle: tauri::AppHandle) -> Result<String, String> 
+{
+    let yt_dlp_path = find_yt_dlp(&app_handle)?;
+
+    tokio::task::spawn_blocking(move || {
+        let mut cmd = Command::new(&yt_dlp_path);
+
+        #[cfg(target_os = "windows")]
+        {
+            use std::os::windows::process::CommandExt;
+            const CREATE_NO_WINDOW: u32 = 0x08000000;
+            cmd.creation_flags(CREATE_NO_WINDOW);
+        }
+
+        cmd.arg("-U")  // update
+        .output()
+    })
+
+    .await
+    .map_err(|e| format!("Task failed: {}", e))?
+    .map(|output| {
+        if output.status.success()
+        {
+            Ok("yt-dlp updated successfully!".to_string()) 
+        }
+        else
+        {
+            Err(String::from_utf8_lossy(&output.stderr).to_string())
+        }
+    })
+
+    .map_err(|e| format!("failed to update yt-dlp: {}", e))?
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -94,8 +129,9 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![download_video])
+        .invoke_handler(tauri::generate_handler![download_video, update_ytdlp])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
