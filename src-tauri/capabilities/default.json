@@ -16,8 +16,12 @@
       "allow": [
         {
           "url": "https://raw.githubusercontent.com/gaknippel/critterDownloader/*"
+        },
+        {
+          "url": "https://github.com/gaknippel/critterDownloader/releases/*"
         }
       ]
     }
+  
   ]
 }
