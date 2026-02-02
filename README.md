@@ -34,6 +34,18 @@ download the latest release and run the installer.
 
 ---
 # patch notes!
+## v1.1.3 - february 2, 2026
+- added a version icon on the top right
+- made most of the text on the app non selectable to make it look nicer
+
+---
+
+## v1.1.2 - february 1, 2026
+- changed the about page text
+- tested some stability stuff for yt-dlp (wasn't working sometimes)
+
+---
+
 ## v1.1.1 - january 30, 2026
 - fixed some formatting on the download page that blocked the welcome text
 
