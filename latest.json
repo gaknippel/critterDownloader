@@ -1,13 +1,13 @@
 {
-  "version": "v1.1.1",
-  "notes": "fixed formatting on download page",
+  "version": "v1.1.2",
+  "notes": "changed about page and tested yt-dlp issues",
   "pub_date": "2026-01-29T12:00:00Z",
   "platforms": 
   {
     "windows-x86_64": 
     {
       "signature": "",
-      "url": "https://github.com/gaknippel/critterDownloader/releases/download/v1.0.0/critterDownloader_1.1.0_x64_en-US.msi"
+      "url": "https://github.com/gaknippel/critterDownloader/releases/download/v1.1.2/critterDownloader_1.1.2_x64_en-US.msi"
     }
   }
 }

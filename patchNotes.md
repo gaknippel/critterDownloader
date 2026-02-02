@@ -1,3 +1,10 @@
+## v1.1.2 - february 1, 2026
+- changed the about page text
+- tested some stability stuff for yt-dlp (wasn't working sometimes)
+
+---
+
+
 ## v1.1.1 - january 30, 2026
 - fixed some formatting on the download page that blocked the welcome text
 
