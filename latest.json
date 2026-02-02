@@ -1,6 +1,6 @@
 {
-  "version": "v1.1.2",
-  "notes": "changed about page and tested yt-dlp issues",
+  "version": "v1.1.3",
+  "notes": "added version icon and made text non selectable",
   "pub_date": "2026-01-29T12:00:00Z",
   "platforms": 
   {
