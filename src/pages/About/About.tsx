@@ -13,21 +13,21 @@ import {
 const items = [
   {
     value: "item-1",
-    trigger: "it's not working!!!",
+    trigger: "it's not working!",
     content:
-      "this app might have a lot of bugs. but first, make sure you have yt-dlp installed.",
+      "this app might have a lot of bugs, i mainly use it for myself, so if it works for me thats fine (sorry)",
   },
   {
     value: "item-2",
     trigger: "what is this app?",
     content:
-      "this is a youtube downloader.",
+      "this is a youtube downloader! sick of all those sketchy websites or paid subscriptions for a basic feature? use this!",
   },
   {
     value: "item-3",
     trigger: "how did i make this?",
     content:
-      "this was made using typescript, react, tauri, vite, shadcnui, reactbits, and a rust backend. thanks for yt-dlp for making this possible.",
+      "this app was made with tauri, typescript + react, shadcnui, reactbits, and yt-dlp.",
   },
 ]
 
