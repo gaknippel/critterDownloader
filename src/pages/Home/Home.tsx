@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { fetch } from '@tauri-apps/plugin-http'
+import { open } from '@tauri-apps/plugin-shell';
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
@@ -69,7 +70,22 @@ export default function Home() {
               ol: ({node, ...props}) => <ol className="markdown-ol" {...props} />,
               li: ({node, ...props}) => <li className="markdown-li" {...props} />,
               code: ({node, ...props}) => <code className="markdown-code" {...props} />,
-              a: ({node, ...props}) => <a className="markdown-link" {...props} />,
+              a: ({node, href, children, ...props}) => (
+                <a
+                  className="markdown-link"
+                  href={href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (href) {
+                      open(href);
+                    }
+                  }}
+                  rel="noopener noreferrer"
+                  {...props}
+                >
+                  {children}
+                </a>
+              ),
             }}
           >
             {patchNotes}
