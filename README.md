@@ -18,6 +18,8 @@ a simple YouTube video and audio downloader.
 
 download the latest release and run the installer.
 
+https://github.com/gaknippel/critterDownloader/releases
+
 ## usage
 
 1. paste a YouTube link
