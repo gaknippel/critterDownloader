@@ -1,4 +1,4 @@
-import { Download, File, Home, Settings } from "lucide-react"
+import { Download, File, Home, Settings, Github } from "lucide-react"
 import { Link } from "react-router-dom"  // ← Add this import
 
 import {
@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter
 } from "@/components/ui/sidebar"
 
 // Menu items.
@@ -59,5 +60,17 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <a href="https://github.com/gaknippel/critterDownloader" target="_blank" rel="noopener noreferrer">
+                <Github />
+                <span>view the source code!</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>  )
 }

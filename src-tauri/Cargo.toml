@@ -1,9 +1,9 @@
 [package]
-name = "youtubedownloader"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-edition = "2021"
+name = "citterDownloader"
+version = "1.1.4"
+description = "A youtube downloader Tauri App"
+authors = ["Greyson Knippel"]
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -24,6 +24,7 @@ tauri-plugin-store = "2.0.0"
 tauri-plugin-dialog = "2.0.0"
 tauri-plugin-http = "2.0.0"
 tauri-plugin-updater = "2.9"
+tauri-plugin-shell = "2"
 tauri-plugin-process = "2.3.1"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }

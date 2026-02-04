@@ -34,6 +34,12 @@ download the latest release and run the installer.
 
 ---
 # patch notes!
+## v1.1.4 - february 4, 2026
+- added github footer on sidebar
+- made the links in patch notes direct you to a web browser, instead of inside the app (lmao)
+
+---
+
 ## v1.1.3 - february 2, 2026
 - added a version icon on the top right
 - made most of the text on the app non selectable to make it look nicer
