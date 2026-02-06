@@ -36,6 +36,11 @@ https://github.com/gaknippel/critterDownloader/releases
 
 ---
 # patch notes!
+## v1.1.5 - february 5, 2026
+- added additional custom themes in appearances tab
+
+---
+
 ## v1.1.4 - february 4, 2026
 - added github footer on sidebar
 - made the links in patch notes direct you to a web browser, instead of inside the app (lmao)
