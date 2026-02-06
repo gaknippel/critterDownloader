@@ -128,6 +128,15 @@ const handleBrowse = async () => {
                 <DropdownMenuItem onClick={() => setTheme("dark")}>
                   dark
                 </DropdownMenuItem>
+               <DropdownMenuItem onClick={() => setTheme("midnight")}>
+                  midnight
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("forest")}>
+                  forest
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("sunset")}>
+                  sunset
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setTheme("system")}>
                   system
                 </DropdownMenuItem>
