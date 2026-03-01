@@ -32,6 +32,7 @@ https://github.com/gaknippel/critterDownloader/releases
 - tauri
 - react
 - yt-dlp
+- ffmpeg
 - shadcnui
 - reactbits
 
