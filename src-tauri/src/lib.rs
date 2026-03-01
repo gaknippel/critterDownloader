@@ -13,7 +13,7 @@ fn find_yt_dlp(app_handle: &tauri::AppHandle) -> Result<String, String> {
         }
     }
     
-    // Fallback to system yt-dlp
+    // fallback to system yt-dlp
     let possible_paths = vec![
         "yt-dlp",
         r"C:\Users\burri\AppData\Local\Microsoft\WinGet\Links\yt-dlp.exe",
@@ -47,7 +47,7 @@ async fn download_video(
     let result = tokio::task::spawn_blocking(move || {
         let mut cmd = Command::new(&yt_dlp_path);
         
-        // Hide console window on Windows
+        // hide console window on windows
         #[cfg(target_os = "windows")]
         {
             use std::os::windows::process::CommandExt;
@@ -55,7 +55,7 @@ async fn download_video(
             cmd.creation_flags(CREATE_NO_WINDOW);
         }
         
-        // Suppress output
+        // suppress output
         cmd.stdout(Stdio::null())
            .stderr(Stdio::piped());
         
@@ -73,17 +73,17 @@ async fn download_video(
         }
     })
     .await
-    .map_err(|e| format!("Task failed: {}", e))?;
+    .map_err(|e| format!("task failed: {}", e))?;
 
     match result {
         Ok(output) => {
             if output.status.success() {
-                Ok("Download completed successfully!".to_string())
+                Ok("download completed successfully".to_string())
             } else {
                 Err(String::from_utf8_lossy(&output.stderr).to_string())
             }
         }
-        Err(e) => Err(format!("Failed to execute yt-dlp: {}", e)),
+        Err(e) => Err(format!("failed to execute yt-dlp: {}", e)),
     }
 }
 
