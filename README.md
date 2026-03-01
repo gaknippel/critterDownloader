@@ -8,11 +8,12 @@ a simple YouTube video and audio downloader.
 
 ## features
 
-- downloading video & audio in the BEST quality with no dumb subscriptions
-- simple ui
-- no bloated ads
+- downloading video & audio in the BEST quality
+- no subscriptions
+- simple ui/ux
+- no dumb ads
 - ability to save to path
-- changeable theme
+- changeable themes
 
 ## installation
 
@@ -36,6 +37,11 @@ https://github.com/gaknippel/critterDownloader/releases
 
 ---
 # patch notes!
+## v1.1.6 - february 28, 2026
+- added ffmpeg feature which combines audio and video together seamlessly
+
+---
+
 ## v1.1.5 - february 5, 2026
 - added additional custom themes in appearances tab
 

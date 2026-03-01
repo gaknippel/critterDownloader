@@ -1,3 +1,9 @@
+## v1.1.6 - february 28, 2026
+- added ffmpeg feature which combines audio and video together seamlessly
+
+---
+
+
 ## v1.1.5 - february 5, 2026
 - added additional custom themes in appearances tab
 
