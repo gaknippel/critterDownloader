@@ -27,7 +27,7 @@ const items = [
     value: "item-3",
     trigger: "how did i make this?",
     content:
-      "this app was made with tauri, typescript + react, shadcnui, reactbits, and yt-dlp.",
+      "this app was made with tauri, typescript + react, shadcnui, reactbits, ffmpeg, and yt-dlp.",
   },
 ]
 
