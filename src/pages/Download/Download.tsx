@@ -11,6 +11,9 @@ import {
   AlertDescription,
 } from "@/components/ui/alert"
 
+import { downloadDir } from '@tauri-apps/api/path'; 
+
+
 const handleAnimationComplete = () => {
   console.log('All letters have animated!');
 };
@@ -22,13 +25,22 @@ export default function Download() {
   const [message, setMessage] = useState('');
   const [downloadPath, setDownloadPath] = useState<string | null>(null);
 
-  // Load download path from settings
+  // load download path from settings
   useEffect(() => {
     const loadPath = async () => {
-      const store = await Store.load('settings.json');
-      const savedPath = await store.get<string>('downloadPath');
-      setDownloadPath(savedPath || null);
-    };
+    const store = await Store.load('settings.json');
+    let savedPath = await store.get<string>('downloadPath');
+    
+    // if no path saved, set default to downloads folder
+    if (!savedPath) {
+      savedPath = await downloadDir();  // downloads folder
+      await store.set('downloadPath', savedPath);
+      await store.save();
+      console.log('First launch - set default path:', savedPath);
+    }
+    
+    setDownloadPath(savedPath);
+  };
     
     loadPath();
   }, []);

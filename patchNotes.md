@@ -1,3 +1,9 @@
+## v1.1.7 - february 28, 2026
+- added a feature where download path is automatically set to C:/Downloads if the user launches the app for the first time, fixing the null download path issue.
+
+---
+
+
 ## v1.1.6 - february 28, 2026
 - added ffmpeg feature which combines audio and video together seamlessly
 
