@@ -15,7 +15,7 @@
 }
 
 .home-welcome {
-  font-family: "Readex Pro", sans-serif;
+  font-family: "Instrument Sans", sans-serif;
   font-size: 3rem;
   margin-top: 2rem;
   color: hsl(var(--foreground));
@@ -30,7 +30,7 @@
 }
 
 .patch-notes-title {
-  font-family: "Readex Pro", sans-serif;
+  font-family: "Instrument Sans", sans-serif;
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 1rem;

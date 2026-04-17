@@ -6,23 +6,19 @@ import { invoke } from '@tauri-apps/api/core';
 import { Store } from '@tauri-apps/plugin-store';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert"
+import { toast } from 'sonner';
 
 import { downloadDir } from '@tauri-apps/api/path'; 
 
 
 const handleAnimationComplete = () => {
-  console.log('All letters have animated!');
+  console.log('all letters have animated!');
 };
 
 export default function Download() {
   const [link, setLink] = useState('');
   const [loading, setLoading] = useState(false);
   const [format, setFormat] = useState('video');
-  const [message, setMessage] = useState('');
   const [downloadPath, setDownloadPath] = useState<string | null>(null);
 
   // load download path from settings
@@ -45,31 +41,20 @@ export default function Download() {
     loadPath();
   }, []);
 
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage('');
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
-
   const handleDownload = async () => {
     if (!link.trim()) {
-      setMessage("please enter a valid youtube link.")
+      toast.error('please enter a valid youtube link son');
       return;
     }
 
   const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/).+$/;
     if (!youtubeRegex.test(link.trim())){
-      setMessage("please enter a valid youtube link.");
+      toast.error('please enter a valid youtube link son');
       return;
     }
 
 
     setLoading(true);
-    setMessage('');
 
     try {
       const result = await invoke('download_video', {
@@ -77,11 +62,11 @@ export default function Download() {
         format: format,
         downloadPath: downloadPath
       });
-      setMessage('download complete!');
+      toast.success('download complete! :D');
       console.log('download result : ', result);
     }
     catch (error) {
-      setMessage(`Error: ${String(error)}`);
+      toast.error(String(error));
       console.error('download error: ', error);
     }
     finally {
@@ -110,7 +95,7 @@ export default function Download() {
         
     <div className="download-form-container">
         <div className="flex flex-col w-full max-w-sm m-auto space-y-4">
-          <div className="flex gap-2 mt-4 font-(sans-serif:--Readex Pro">
+          <div className="flex gap-2 mt-4">
             <Button 
               variant={format === 'video' ? 'default' : 'outline'}
               onClick={() => setFormat('video')}
@@ -153,16 +138,6 @@ export default function Download() {
         </div>
     </div>
 
-        {message && (
-          <Alert 
-            variant={message.includes('Error') ? 'destructive' : 'default'}
-            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-50"
-          >
-            <AlertDescription>
-              {message}
-            </AlertDescription>
-          </Alert>
-        )}
     </div>
   )
 }

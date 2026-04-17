@@ -8,7 +8,7 @@
 }
 
 .download-welcome-message {
-  font-family: "Readex Pro", sans-serif;
+  font-family: "Instrument Sans", sans-serif;
   font-size: 3rem;
   color: hsl(var(--foreground));
   text-align: center;
@@ -31,7 +31,7 @@
 }
 
 .basic-text {
-  font-family: "Readex Pro", sans-serif;
+  font-family: "Instrument Sans", sans-serif;
   font-size: 3rem;
   color: white;
   text-align: center;
@@ -46,7 +46,7 @@
   padding: 40px;
   
   color: #e0e0e0;
-  font-family: "Readex Pro", sans-serif;
+  font-family: "Instrument Sans", sans-serif;
   line-height: 1.6;
   margin-top: 5%;
 }

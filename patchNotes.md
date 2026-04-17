@@ -1,3 +1,9 @@
+## v1.1.8 - april 17, 2026
+- upgraded the toast feature from sonner, and changed the font for the entire app.
+
+---
+
+
 ## v1.1.7 - april 6, 2026
 - added a feature where download path is automatically set to C:/Downloads if the user launches the app for the first time, fixing the null download path issue.
 
