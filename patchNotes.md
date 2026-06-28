@@ -1,3 +1,9 @@
+## v1.2.0 - june 28, 2026
+- quick fix to patch 1.1.9. added a file destination history for quick access, + ui fixes
+
+---
+
+
 ## v1.1.9 - june 27, 2026
 - **`MAJOR UPDATE!!!`** app now checks for updates via latest.json in relases, user can now select quality of chosen video and/or audio, user can now also change the download path in the download path instead of going to settings, and the update ytp-dl actually works now, + various QOL & UI improvements.
 

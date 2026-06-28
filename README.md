@@ -40,7 +40,7 @@ https://github.com/gaknippel/critterDownloader/releases
 
 ---
 # patch notes!
-## v1.2 - june 28, 2026
+## v1.2.0 - june 28, 2026
 - quick fix to patch 1.1.9. added a file destination history for quick access, + ui fixes
 
 ---

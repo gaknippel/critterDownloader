@@ -1,5 +1,5 @@
 {
-  "version": "v1.2",
+  "version": "v1.2.0",
   "notes": "quick fix",
   "pub_date": "2026-06-27T12:00:00Z",
   "platforms": 
@@ -7,7 +7,7 @@
     "windows-x86_64": 
     {
       "signature": "",
-      "url": "https://github.com/gaknippel/critterDownloader/releases/download/v1.2/critterDownloader_1.2_x64_en-US.msi"
+      "url": "https://github.com/gaknippel/critterDownloader/releases/download/v1.2.0/critterDownloader_1.2.0_x64_en-US.msi"
     }
   }
 }
