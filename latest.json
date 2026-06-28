@@ -1,13 +1,13 @@
 {
-  "version": "v1.1.8",
-  "notes": "upgraded toast",
-  "pub_date": "2026-01-29T12:00:00Z",
+  "version": "v1.1.9",
+  "notes": "app revamp",
+  "pub_date": "2026-06-27T12:00:00Z",
   "platforms": 
   {
     "windows-x86_64": 
     {
       "signature": "",
-      "url": "https://github.com/gaknippel/critterDownloader/releases/download/v1.1.6/critterDownloader_1.1.6_x64_en-US.msi"
+      "url": "https://github.com/gaknippel/critterDownloader/releases/download/v1.1.9/critterDownloader_1.1.9_x64_en-US.msi"
     }
   }
 }

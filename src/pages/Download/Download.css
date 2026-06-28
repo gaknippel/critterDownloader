@@ -1,33 +1,26 @@
 .download-page-wrapper {
-  height: 60vh; 
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
+  gap: 1.5rem;
+  padding: 50px 20px 40px 20px;
+  box-sizing: border-box;
 }
 
 .download-welcome-message {
   font-family: "Instrument Sans", sans-serif;
-  font-size: 3rem;
+  font-size: 3.5rem;
+  font-weight: 700;
   color: hsl(var(--foreground));
   text-align: center;
 }
 
-.download-page-wrapper {
-  height: 60vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 2rem; /* Add gap between the sections */
-}
-
 .download-form-container {
   width: 100%;
-  max-width: 400px; /* Equivalent to max-w-sm in Tailwind */
-  margin: 0 auto; /* Center the form horizontally */
+  max-width: 520px; /* Increased from 400px to fit larger controls */
+  margin: 0 auto;
 }
 
 .basic-text {

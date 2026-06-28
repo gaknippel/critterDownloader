@@ -40,18 +40,17 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar className="pt-10">
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>start downloading!</SidebarGroupLabel>
+        <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-2">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
+                  <SidebarMenuButton asChild size="lg" className="px-4 py-6 rounded-lg transition-all duration-200">
+                    <Link to={item.url} className="flex items-center gap-3.5">
+                      <item.icon className="!size-5 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
+                      <span className="text-base font-semibold">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -60,13 +59,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="p-4 border-t border-sidebar-border bg-sidebar-accent/20">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="https://github.com/gaknippel/critterDownloader" target="_blank" rel="noopener noreferrer">
-                <Github />
-                <span>view the source code!</span>
+            <SidebarMenuButton asChild size="lg" className="px-4 py-6 rounded-lg transition-all duration-200">
+              <a href="https://github.com/gaknippel/critterDownloader" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                <Github className="!size-5 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
+                <span className="text-sm font-semibold">view source code!</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

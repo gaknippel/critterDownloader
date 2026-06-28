@@ -13,10 +13,11 @@
     "windows": [
       {
         "title": "critterDownloader",
-        "width": 1000,
-        "height": 700,
+        "width": 1440,
+        "height": 1080,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "decorations": false
       }
     ],
     "security": {

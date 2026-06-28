@@ -15,10 +15,8 @@ import './Settings.css';
 
 import SplitText from '../../components/SplitText'
 
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert"
+
+import { toast } from 'sonner';
 
 
 export default function Settings() {
@@ -27,7 +25,6 @@ export default function Settings() {
   const [downloadPath, setDownloadPath] = useState('');
   const [store, setStore] = useState<Store | null>(null);
   const [updating, setUpdating] = useState(false);
-  const [updateMessage, setUpdateMessage] = useState('');
 
 
 
@@ -67,6 +64,7 @@ const handleBrowse = async () => {
       await store.set('downloadPath', selected);
       await store.save();
       console.log('saved successfully!');
+      toast.success('download path saved successfully!');
     }
     else 
     {
@@ -74,22 +72,28 @@ const handleBrowse = async () => {
     }
   } catch (error) {
     console.error('Browse error:', error);
+    toast.error('failed to select download path: ' + String(error));
   }
 };
 
 
   const handleUpdateYtdlp = async () => {
     setUpdating(true);
-    setUpdateMessage('');
+    const toastId = toast.loading('updating yt-dlp...');
     
     try {
       const result = await invoke('update_ytdlp');
-      setUpdateMessage(String(result));
+      toast.success(String(result), { id: toastId });
     } catch (error) {
-      setUpdateMessage(`Error: ${String(error)}`);
+      toast.error(String(error), { id: toastId });
     } finally {
       setUpdating(false);
     }
+  };
+
+  const handleThemeChange = (theme: Parameters<typeof setTheme>[0]) => {
+    setTheme(theme);
+    toast.success(`theme set to ${theme}!`);
   };
 
   const handleAnimationComplete = () => {
@@ -100,7 +104,7 @@ const handleBrowse = async () => {
     <div className="settings-page-wrapper p-4 md:p-6">
       <SplitText
         text="settings"
-        className="about-welcome-message"
+        className="settings-welcome-message"
         delay={15}
         duration={0.6}
         ease="power3.out"
@@ -122,22 +126,22 @@ const handleBrowse = async () => {
                 <Button variant="outline">theme</Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("light")}>
                   light
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
                   dark
                 </DropdownMenuItem>
-               <DropdownMenuItem onClick={() => setTheme("midnight")}>
+               <DropdownMenuItem onClick={() => handleThemeChange("midnight")}>
                   midnight
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("forest")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("forest")}>
                   forest
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("sunset")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("sunset")}>
                   sunset
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("system")}>
                   system
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -180,16 +184,6 @@ const handleBrowse = async () => {
         </section>
       </div>
 
-      {updateMessage && (
-        <Alert 
-          variant={updateMessage.includes('Error') ? 'destructive' : 'default'}
-          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-50"
-        >
-          <AlertDescription>
-            {updateMessage}
-          </AlertDescription>
-        </Alert>
-      )}
     </div>
   );
 }

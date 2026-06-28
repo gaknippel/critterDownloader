@@ -406,3 +406,26 @@
     font-size: 0.8rem !important;
     opacity: 0.8 !important;
   }
+
+  /* Custom premium scrollbars globally */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.25);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.45);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
