@@ -160,6 +160,9 @@ async fn download_video(
                    .arg("--merge-output-format").arg("mp4");
             }
             
+            // force re-encoding of audio to AAC during merge
+            cmd.arg("--postprocessor-args").arg("Merger:-c:a aac");
+            
             // add ffmpeg location if found
             if let Some(ffmpeg) = ffmpeg_path {
                 cmd.arg("--ffmpeg-location").arg(&ffmpeg);

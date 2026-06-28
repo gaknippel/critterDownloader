@@ -1,13 +1,32 @@
 import { useState, useEffect, useRef } from 'react';
 import './Download.css'
 import SplitText from '../../components/SplitText'
+import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { invoke } from '@tauri-apps/api/core';
 import { Store } from '@tauri-apps/plugin-store';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, History, Check, ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { open } from '@tauri-apps/plugin-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 
 import { downloadDir } from '@tauri-apps/api/path'; 
 import blackCat from '../../assets/blackCat.gif';
@@ -59,10 +78,13 @@ export default function Download() {
   const [loading, setLoading] = useState(false);
   const [format, setFormat] = useState('video');
   const [downloadPath, setDownloadPath] = useState<string | null>(null);
+  const [pathHistory, setPathHistory] = useState<string[]>([]);
   const [store, setStore] = useState<Store | null>(null);
   const [videoInfo, setVideoInfo] = useState<YtDlpVideoInfo | null>(null);
   const [loadingInfo, setLoadingInfo] = useState(false);
   const [selectedFormatId, setSelectedFormatId] = useState<string>('');
+  const [videoComboboxOpen, setVideoComboboxOpen] = useState(false);
+  const [audioComboboxOpen, setAudioComboboxOpen] = useState(false);
 
   const isValidLink = YOUTUBE_REGEX.test(link.trim());
   const isDownloadDisabled = loading || loadingInfo || (isValidLink && !videoInfo);
@@ -78,11 +100,21 @@ export default function Download() {
       if (!savedPath) {
         savedPath = await downloadDir();  // downloads folder
         await newStore.set('downloadPath', savedPath);
-        await newStore.save();
         console.log('First launch - set default path:', savedPath);
       }
       
       setDownloadPath(savedPath);
+
+      // load download path history
+      let history = await newStore.get<string[]>('pathHistory') || [];
+      history = history.filter(Boolean);
+      if (savedPath && !history.includes(savedPath)) {
+        history.unshift(savedPath);
+        history = history.slice(0, 5);
+        await newStore.set('pathHistory', history);
+      }
+      setPathHistory(history);
+      await newStore.save();
     };
     
     loadPath();
@@ -98,12 +130,33 @@ export default function Download() {
       if (selected && store) {
         setDownloadPath(selected);
         await store.set('downloadPath', selected);
+        
+        let history = await store.get<string[]>('pathHistory') || [];
+        history = [selected, ...history.filter(p => p !== selected)].slice(0, 5);
+        setPathHistory(history);
+        await store.set('pathHistory', history);
+        
         await store.save();
         toast.success('download path saved successfully!');
       }
     } catch (error) {
       console.error('Browse error:', error);
       toast.error('failed to select download path: ' + String(error));
+    }
+  };
+
+  const handleSelectHistoryPath = async (path: string) => {
+    if (store) {
+      setDownloadPath(path);
+      await store.set('downloadPath', path);
+      
+      let history = await store.get<string[]>('pathHistory') || [];
+      history = [path, ...history.filter(p => p !== path)].slice(0, 5);
+      setPathHistory(history);
+      await store.set('pathHistory', history);
+      
+      await store.save();
+      toast.success('download destination updated!');
     }
   };
 
@@ -185,7 +238,7 @@ export default function Download() {
         format: format === 'audio' ? (selectedFormatId || 'audio-320k') : (selectedFormatId || 'video'),
         downloadPath: downloadPath
       });
-      toast.success('download complete! :D');
+      toast.success('download complete! :D stored in: ' + downloadPath);
       console.log('download result : ', result);
     }
     catch (error) {
@@ -263,7 +316,7 @@ export default function Download() {
                   downloading...
                 </>
               ) : (
-                'Download'
+                'download'
               )}
             </Button>
           </div>
@@ -300,40 +353,125 @@ export default function Download() {
 
               {format === 'video' && (
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="quality-select" className="text-xs text-muted-foreground font-bold  tracking-wider">
+                  <label className="text-xs text-muted-foreground font-bold tracking-wider">
                     select video quality
                   </label>
-                  <select
-                    id="quality-select"
-                    value={selectedFormatId}
-                    onChange={(e) => setSelectedFormatId(e.target.value)}
-                    className="w-full text-sm bg-muted/50 hover:bg-muted/80 border border-input rounded-md px-3 py-2 outline-none transition-all duration-150 cursor-pointer h-10"
-                  >
-                    {extractResolutions(videoInfo.formats).map((f) => (
-                      <option key={f.format_id} value={f.format_id} className="bg-background text-foreground">
-                        {f.height}p ({f.ext.toUpperCase()}) {f.fps ? `${f.fps}fps` : ''} {f.filesize || f.filesize_approx ? `~${Math.round((f.filesize || f.filesize_approx || 0) / 1024 / 1024)}MB` : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <Popover open={videoComboboxOpen} onOpenChange={setVideoComboboxOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={videoComboboxOpen}
+                        className="w-full justify-between h-10 px-3 bg-muted/30 hover:bg-muted/50 font-normal border border-input rounded-md"
+                      >
+                        <span className="truncate">
+                          {(() => {
+                            const selected = extractResolutions(videoInfo.formats).find(
+                              (f) => f.format_id === selectedFormatId
+                            );
+                            return selected
+                              ? `${selected.height}p (${selected.ext.toUpperCase()})${selected.fps ? ` ${selected.fps}fps` : ''}${selected.filesize || selected.filesize_approx ? ` ~${Math.round((selected.filesize || selected.filesize_approx || 0) / 1024 / 1024)}MB` : ''}`
+                              : "Select video quality...";
+                          })()}
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-popover border border-border shadow-lg rounded-md overflow-hidden">
+                      <Command>
+                        <CommandList>
+                          <CommandEmpty>No formats found.</CommandEmpty>
+                          <CommandGroup>
+                            {extractResolutions(videoInfo.formats).map((f) => (
+                              <CommandItem
+                                key={f.format_id}
+                                value={`${f.height}p ${f.ext} ${f.fps || ''}`}
+                                onSelect={() => {
+                                  setSelectedFormatId(f.format_id);
+                                  setVideoComboboxOpen(false);
+                                }}
+                                className="flex items-center gap-2 px-2 py-1.5 cursor-pointer text-sm hover:bg-muted rounded-sm"
+                              >
+                                <Check
+                                  className={cn(
+                                    "h-4 w-4 shrink-0",
+                                    selectedFormatId === f.format_id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <span className="truncate">
+                                  {f.height}p ({f.ext.toUpperCase()}) {f.fps ? `${f.fps}fps` : ''} {f.filesize || f.filesize_approx ? `~${Math.round((f.filesize || f.filesize_approx || 0) / 1024 / 1024)}MB` : ''}
+                                </span>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               )}
 
               {format === 'audio' && (
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="quality-select" className="text-xs text-muted-foreground font-bold  tracking-wider">
+                  <label className="text-xs text-muted-foreground font-bold tracking-wider">
                     select audio quality
                   </label>
-                  <select
-                    id="quality-select"
-                    value={selectedFormatId}
-                    onChange={(e) => setSelectedFormatId(e.target.value)}
-                    className="w-full text-sm bg-muted/50 hover:bg-muted/80 border border-input rounded-md px-3 py-2 outline-none transition-all duration-150 cursor-pointer h-10"
-                  >
-                    <option value="audio-320k" className="bg-background text-foreground">320kbps (Best Quality)</option>
-                    <option value="audio-256k" className="bg-background text-foreground">256kbps (High Quality)</option>
-                    <option value="audio-192k" className="bg-background text-foreground">192kbps (Medium Quality)</option>
-                    <option value="audio-128k" className="bg-background text-foreground">128kbps (Standard Quality)</option>
-                  </select>
+                  <Popover open={audioComboboxOpen} onOpenChange={setAudioComboboxOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={audioComboboxOpen}
+                        className="w-full justify-between h-10 px-3 bg-muted/30 hover:bg-muted/50 font-normal border border-input rounded-md"
+                      >
+                        <span className="truncate">
+                          {(() => {
+                            const options: Record<string, string> = {
+                              "audio-320k": "320kbps (Best Quality)",
+                              "audio-256k": "256kbps (High Quality)",
+                              "audio-192k": "192kbps (Medium Quality)",
+                              "audio-128k": "128kbps (Standard Quality)",
+                            };
+                            return options[selectedFormatId] || "Select audio quality...";
+                          })()}
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-popover border border-border shadow-lg rounded-md overflow-hidden">
+                      <Command>
+                        <CommandList>
+                          <CommandEmpty>No qualities found.</CommandEmpty>
+                          <CommandGroup>
+                            {[
+                              { id: "audio-320k", label: "320kbps (Best Quality)" },
+                              { id: "audio-256k", label: "256kbps (High Quality)" },
+                              { id: "audio-192k", label: "192kbps (Medium Quality)" },
+                              { id: "audio-128k", label: "128kbps (Standard Quality)" },
+                            ].map((opt) => (
+                              <CommandItem
+                                key={opt.id}
+                                value={opt.label}
+                                onSelect={() => {
+                                  setSelectedFormatId(opt.id);
+                                  setAudioComboboxOpen(false);
+                                }}
+                                className="flex items-center gap-2 px-2 py-1.5 cursor-pointer text-sm hover:bg-muted rounded-sm"
+                              >
+                                <Check
+                                  className={cn(
+                                    "h-4 w-4 shrink-0",
+                                    selectedFormatId === opt.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <span>{opt.label}</span>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               )}
             </div>
@@ -345,13 +483,39 @@ export default function Download() {
                 file destination!
               </label>
               <div className="flex gap-2.5 w-full">
-                <Input 
-                  id="download-path" 
-                  value={downloadPath} 
-                  placeholder="select a folder" 
-                  readOnly 
-                  className="text-sm h-10 bg-muted/40 px-3"
-                />
+                <div className="relative flex-1 flex gap-2">
+                  <Input 
+                    id="download-path" 
+                    value={downloadPath} 
+                    placeholder="select a folder" 
+                    readOnly 
+                    className="text-sm h-10 bg-muted/40 px-3 flex-1"
+                  />
+                  {pathHistory.length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon" className="h-10 w-10 shrink-0" title="Recent destinations">
+                          <History className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[350px] max-w-[90vw] bg-popover border border-border shadow-lg p-1.5 rounded-lg">
+                        <div className="text-[10px] text-muted-foreground font-bold px-2 py-1 tracking-wider select-none border-b border-border/40 mb-1">
+                          recent destinations
+                        </div>
+                        {pathHistory.map((path, idx) => (
+                          <DropdownMenuItem 
+                            key={idx} 
+                            onClick={() => handleSelectHistoryPath(path)}
+                            className="text-xs font-mono py-1.5 px-2 hover:bg-muted/80 rounded cursor-pointer flex justify-between items-center group w-full"
+                          >
+                            <span className="truncate flex-1 text-left" title={path}>{path}</span>
+                            {path === downloadPath && <span className="text-[10px] text-emerald-500 font-bold ml-2 shrink-0 bg-emerald-500/10 px-1.5 py-0.5 rounded">active</span>}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
                 <Button variant="outline" size="sm" onClick={handleBrowse} className="h-10 px-4">
                   browse
                 </Button>

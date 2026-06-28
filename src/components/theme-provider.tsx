@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react"
+import { Store } from "@tauri-apps/plugin-store"
 
 type Theme = "dark" | "light" | "system" | "midnight" | "forest" | "sunset"
 
@@ -26,10 +27,28 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
+  const [theme, setThemeState] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   )
 
+  // Load theme from Tauri Store on mount to overwrite localStorage if present
+  useEffect(() => {
+    const loadThemeFromStore = async () => {
+      try {
+        const store = await Store.load("settings.json")
+        const savedTheme = await store.get<Theme>("theme")
+        if (savedTheme) {
+          setThemeState(savedTheme)
+          localStorage.setItem(storageKey, savedTheme)
+        }
+      } catch (error) {
+        console.error("Failed to load theme from Tauri store:", error)
+      }
+    }
+    loadThemeFromStore()
+  }, [storageKey])
+
+  // Apply theme to document element
   useEffect(() => {
     const root = window.document.documentElement
 
@@ -52,7 +71,19 @@ export function ThemeProvider({
     theme,
     setTheme: (theme: Theme) => {
       localStorage.setItem(storageKey, theme)
-      setTheme(theme)
+      setThemeState(theme)
+      
+      // Save theme to Tauri Store asynchronously
+      const saveThemeToStore = async () => {
+        try {
+          const store = await Store.load("settings.json")
+          await store.set("theme", theme)
+          await store.save()
+        } catch (error) {
+          console.error("Failed to save theme to Tauri store:", error)
+        }
+      }
+      saveThemeToStore()
     },
   }
 

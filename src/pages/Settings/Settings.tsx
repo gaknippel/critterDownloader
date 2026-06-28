@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 
 export default function Settings() {
 
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [downloadPath, setDownloadPath] = useState('');
   const [store, setStore] = useState<Store | null>(null);
   const [updating, setUpdating] = useState(false);
@@ -123,7 +123,7 @@ const handleBrowse = async () => {
             <span>theme</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">theme</Button>
+                <Button variant="outline">{theme}</Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => handleThemeChange("light")}>
