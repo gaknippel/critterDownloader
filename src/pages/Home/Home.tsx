@@ -9,7 +9,7 @@ import { open } from '@tauri-apps/plugin-shell'
 import { getVersion } from '@tauri-apps/api/app'
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { History, Sparkles } from 'lucide-react'
+import { History} from 'lucide-react'
 
 const handleAnimationComplete = () => {
   console.log('All letters have animated!');
