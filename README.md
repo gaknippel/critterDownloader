@@ -4,7 +4,7 @@ a simple YouTube video and audio downloader.
 
 <div align="center">
 
-![Critter Logo](src/assets/critterDownloaderAd.webm)
+![Critter Logo](critterDownloaderAd.webm)
 
 </div>
 
