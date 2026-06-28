@@ -38,6 +38,12 @@ https://github.com/gaknippel/critterDownloader/releases
 
 ---
 # patch notes!
+## v1.1.9 - june 27, 2026
+- MAJOR UPDATE!!! app now checks for updates via latest.json in relases, user can now select quality of chosen video and/or audio, user can now also change the download path in the download path instead of going to settings, and the update ytp-dl actually works now, + various QOL & UI improvements.
+
+---
+
+
 ## v1.1.8 - april 17, 2026
 - upgraded the toast feature from sonner, and changed the font for the entire app.
 
