@@ -137,7 +137,7 @@ export default function Home() {
               </div>
             ) : isUpdateAvailable ? (
               <div className="flex flex-col gap-2 w-full text-left">
-                <div className="flex items-center gap-1.5 text-amber-500 font-semibold text-xs tracking-wide uppercase">
+                <div className="flex items-center gap-1.5 text-amber-500 font-semibold text-xs tracking-wide">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
@@ -152,7 +152,7 @@ export default function Home() {
                   onClick={handleDownloadUpdate} 
                   className="mt-1 w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold gap-1.5 text-xs h-8"
                 >
-                  <Sparkles size={12} />
+             
                   download update
                 </Button>
               </div>

@@ -142,6 +142,11 @@ async fn download_video(
                 }
             }
 
+            // Add ffmpeg location if found
+            if let Some(ref ffmpeg) = ffmpeg_path {
+                cmd.arg("--ffmpeg-location").arg(ffmpeg);
+            }
+
             cmd.arg("-o").arg(&output_template)
                .arg(&url);
         } else {
