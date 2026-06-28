@@ -3,9 +3,10 @@
 a simple YouTube video and audio downloader.
 
 <div align="center">
-
-![Critter Logo](critterDownloaderAd.webm)
-
+  <video width="640" height="360" controls>
+    <source src="public/critterDownloaderAd.webm" type="video/webm">
+    Your browser does not support the video tag.
+  </video>
 </div>
 
 ## features
