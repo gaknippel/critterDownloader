@@ -3,7 +3,9 @@
 a simple YouTube video and audio downloader.
 
 <div align="center">
-  <video src="src/assets/critterDownloaderAd.webm" autoplay loop muted playsinline width="600"></video>
+
+![Critter Logo](src/assets/critterDownloaderAd.webm)
+
 </div>
 
 ## features
