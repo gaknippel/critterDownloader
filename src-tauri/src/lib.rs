@@ -106,7 +106,9 @@ async fn download_video(
     app_handle: tauri::AppHandle,
     url: String, 
     format: String, 
-    download_path: Option<String>
+    download_path: Option<String>,
+    cookies_browser: Option<String>,
+    cookies_file: Option<String>
 ) -> Result<String, String> {
     let yt_dlp_path = find_yt_dlp(&app_handle)?;
     let ffmpeg_path = find_ffmpeg(&app_handle);
@@ -147,6 +149,16 @@ async fn download_video(
                 cmd.arg("--ffmpeg-location").arg(ffmpeg);
             }
 
+            if let Some(ref path) = cookies_file {
+                if !path.is_empty() {
+                    cmd.arg("--cookies").arg(path);
+                }
+            } else if let Some(ref browser) = cookies_browser {
+                if !browser.is_empty() && browser != "none" {
+                    cmd.arg("--cookies-from-browser").arg(browser);
+                }
+            }
+
             cmd.arg("-o").arg(&output_template)
                .arg(&url);
         } else {
@@ -166,6 +178,16 @@ async fn download_video(
             // add ffmpeg location if found
             if let Some(ffmpeg) = ffmpeg_path {
                 cmd.arg("--ffmpeg-location").arg(&ffmpeg);
+            }
+            
+            if let Some(ref path) = cookies_file {
+                if !path.is_empty() {
+                    cmd.arg("--cookies").arg(path);
+                }
+            } else if let Some(ref browser) = cookies_browser {
+                if !browser.is_empty() && browser != "none" {
+                    cmd.arg("--cookies-from-browser").arg(browser);
+                }
             }
             
             cmd.arg("-o").arg(&output_template)
@@ -292,7 +314,12 @@ async fn update_ytdlp(app_handle: tauri::AppHandle) -> Result<String, String>
 }
 
 #[command]
-async fn get_video_info(app_handle: tauri::AppHandle, url: String) -> Result<String, String> {
+async fn get_video_info(
+    app_handle: tauri::AppHandle, 
+    url: String,
+    cookies_browser: Option<String>,
+    cookies_file: Option<String>
+) -> Result<String, String> {
     let yt_dlp_path = find_yt_dlp(&app_handle)?;
     
     let result = tokio::task::spawn_blocking(move || {
@@ -303,6 +330,16 @@ async fn get_video_info(app_handle: tauri::AppHandle, url: String) -> Result<Str
             use std::os::windows::process::CommandExt;
             const CREATE_NO_WINDOW: u32 = 0x08000000;
             cmd.creation_flags(CREATE_NO_WINDOW);
+        }
+        
+        if let Some(ref path) = cookies_file {
+            if !path.is_empty() {
+                cmd.arg("--cookies").arg(path);
+            }
+        } else if let Some(ref browser) = cookies_browser {
+            if !browser.is_empty() && browser != "none" {
+                cmd.arg("--cookies-from-browser").arg(browser);
+            }
         }
         
         cmd.arg("-j")

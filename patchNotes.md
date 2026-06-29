@@ -1,3 +1,9 @@
+## v1.2.1 - june 28, 2026
+- added an option to use cookies from your browser if signed in on youtube to bypass youtube's bot-checking encryptions. still in beta so it might be broken. 
+
+---
+
+
 ## v1.2.0 - june 28, 2026
 - quick fix to patch 1.1.9. added a file destination history for quick access, + ui fixes
 

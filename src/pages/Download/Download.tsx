@@ -67,7 +67,7 @@ const extractResolutions = (formats: YtDlpFormat[]) => {
     .sort((a, b) => (b.height || 0) - (a.height || 0));
 };
 
-const YOUTUBE_REGEX = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/).+$/;
+const YOUTUBE_REGEX = /^(https?:\/\/)?((www|m|music|gaming)\.)?(youtube\.com\/(watch\?|shorts\/|live\/|v\/|embed\/)|youtu\.be\/).+$/;
 
 const handleAnimationComplete = () => {
   console.log('all letters have animated!');
@@ -85,6 +85,7 @@ export default function Download() {
   const [selectedFormatId, setSelectedFormatId] = useState<string>('');
   const [videoComboboxOpen, setVideoComboboxOpen] = useState(false);
   const [audioComboboxOpen, setAudioComboboxOpen] = useState(false);
+  const [cookiesBrowser, setCookiesBrowser] = useState('none');
 
   const isValidLink = YOUTUBE_REGEX.test(link.trim());
   const isDownloadDisabled = loading || loadingInfo || (isValidLink && !videoInfo);
@@ -114,6 +115,11 @@ export default function Download() {
         await newStore.set('pathHistory', history);
       }
       setPathHistory(history);
+
+      // load cookies browser setting
+      const savedBrowser = await newStore.get<string>('cookiesBrowser') || 'none';
+      setCookiesBrowser(savedBrowser);
+
       await newStore.save();
     };
     
@@ -182,7 +188,7 @@ export default function Download() {
     }
   };
 
-  // Fetch video options when link changes
+  // fetch video options when link changes
   useEffect(() => {
     if (YOUTUBE_REGEX.test(link.trim())) {
       const fetchInfo = async () => {
@@ -190,7 +196,14 @@ export default function Download() {
         setVideoInfo(null);
         setSelectedFormatId('');
         try {
-          const result = await invoke('get_video_info', { url: link.trim() });
+          const activeStore = store || await Store.load('settings.json');
+          const currentBrowser = await activeStore.get<string>('cookiesBrowser') || 'none';
+          const cookiesFile = await activeStore.get<string>('cookiesFilePath') || null;
+          const result = await invoke('get_video_info', { 
+            url: link.trim(),
+            cookiesBrowser: currentBrowser === 'none' ? null : currentBrowser,
+            cookiesFile: currentBrowser === 'custom' ? cookiesFile : null
+          });
           const parsed: YtDlpVideoInfo = JSON.parse(String(result));
           setVideoInfo(parsed);
           
@@ -204,6 +217,7 @@ export default function Download() {
           }
         } catch (error) {
           console.error('Failed to get video info:', error);
+          toast.error('failed to fetch video options: ' + String(error));
         } finally {
           setLoadingInfo(false);
         }
@@ -233,10 +247,15 @@ export default function Download() {
     setLoading(true);
 
     try {
+      const activeStore = store || await Store.load('settings.json');
+      const currentBrowser = await activeStore.get<string>('cookiesBrowser') || 'none';
+      const cookiesFile = await activeStore.get<string>('cookiesFilePath') || null;
       const result = await invoke('download_video', {
         url: link,
         format: format === 'audio' ? (selectedFormatId || 'audio-320k') : (selectedFormatId || 'video'),
-        downloadPath: downloadPath
+        downloadPath: downloadPath,
+        cookiesBrowser: currentBrowser === 'none' ? null : currentBrowser,
+        cookiesFile: currentBrowser === 'custom' ? cookiesFile : null
       });
       toast.success('download complete! :D stored in: ' + downloadPath);
       console.log('download result : ', result);
@@ -324,6 +343,12 @@ export default function Download() {
           <p className="text-[11px] text-muted-foreground/60 italic text-center mt-1">
             * playlist support coming soon maybe
           </p>
+
+          {cookiesBrowser === 'none' && (
+            <div className="text-[11px] text-amber-500/90 border border-amber-500/20 bg-amber-500/5 px-3 py-2.5 rounded-lg text-center mt-1 font-medium flex items-center justify-center gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+              <span>⚠️ cookies source is currently disabled! you might run into download blocks since youtube thinks you're a bot. configure it in settings.</span>
+            </div>
+          )}
 
           {/* Info Card / Loader */}
           {loadingInfo && (

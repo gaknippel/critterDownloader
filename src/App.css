@@ -297,6 +297,7 @@
   rgba(0, 0, 0, 0.45) !important;
     font-family: var(--font-sans) !
   important;
+    user-select: text !important;
   }
 
   .toaster {
