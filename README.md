@@ -1,6 +1,6 @@
 # critterDownloader
 
-a simple YouTube video and audio downloader.
+a simple media downloader (soundcloud & youtube for now).
 
 <div align="center">
 
@@ -25,7 +25,7 @@ https://github.com/gaknippel/critterDownloader/releases
 
 ## usage
 
-1. paste a YouTube link
+1. paste a YouTube or Soundcloud link
 2. choose video or audio
 3. click download! easy!
 
