@@ -30,6 +30,7 @@ import {
 
 import { downloadDir } from '@tauri-apps/api/path'; 
 import blackCat from '../../assets/blackCat.gif';
+import soundcloudLogo from '../../assets/soundcloudLogo.png';
 
 interface YtDlpFormat {
   format_id: string;
@@ -68,6 +69,143 @@ const extractResolutions = (formats: YtDlpFormat[]) => {
 };
 
 const YOUTUBE_REGEX = /^(https?:\/\/)?((www|m|music|gaming)\.)?(youtube\.com\/(watch\?|shorts\/|live\/|v\/|embed\/)|youtu\.be\/).+$/;
+const SOUNDCLOUD_REGEX = /^(https?:\/\/)?(((www|m)\.)?soundcloud\.com|on\.soundcloud\.com)\/.+$/;
+
+const YoutubeIcon = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" fill="#EF4444" stroke="#EF4444" strokeWidth="2" strokeLinejoin="round" />
+    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white" stroke="white" strokeWidth="1" />
+  </svg>
+);
+
+const sanitizeAndValidateUrl = (rawUrl: string): { isValid: boolean; sanitizedUrl: string; error?: string } => {
+  const trimmed = rawUrl.trim();
+  if (!trimmed) {
+    return { isValid: false, sanitizedUrl: trimmed };
+  }
+
+  const isYoutube = YOUTUBE_REGEX.test(trimmed) || 
+                    trimmed.includes('youtube.com') || 
+                    trimmed.includes('youtu.be');
+                    
+  const isSoundcloud = SOUNDCLOUD_REGEX.test(trimmed) || 
+                       trimmed.includes('soundcloud.com');
+
+  if (!isYoutube && !isSoundcloud) {
+    return { 
+      isValid: false, 
+      sanitizedUrl: trimmed, 
+      error: 'please enter a valid youtube or soundcloud link.' 
+    };
+  }
+
+  if (isYoutube) {
+    if (
+      trimmed.includes('/playlist') || 
+      trimmed.includes('/channel/') || 
+      trimmed.includes('/c/') || 
+      trimmed.includes('/user/') || 
+      trimmed.includes('/@')
+    ) {
+      return { 
+        isValid: false, 
+        sanitizedUrl: trimmed, 
+        error: 'playlists and channels are not supported. please enter a single video link.' 
+      };
+    }
+
+    try {
+      let urlString = trimmed;
+      if (!/^https?:\/\//i.test(urlString)) {
+        urlString = 'https://' + urlString;
+      }
+
+      const url = new URL(urlString);
+
+      if (url.pathname.includes('/watch')) {
+        const videoId = url.searchParams.get('v');
+        if (!videoId) {
+          return { 
+            isValid: false, 
+            sanitizedUrl: trimmed, 
+            error: 'playlist links are not supported. please enter a single video link.' 
+          };
+        }
+        
+        const cleanUrl = new URL(url.origin + url.pathname);
+        cleanUrl.searchParams.set('v', videoId);
+        const time = url.searchParams.get('t');
+        if (time) {
+          cleanUrl.searchParams.set('t', time);
+        }
+        return { isValid: true, sanitizedUrl: cleanUrl.toString() };
+      }
+
+      url.searchParams.delete('list');
+      url.searchParams.delete('index');
+      url.searchParams.delete('playnext');
+
+      return { isValid: true, sanitizedUrl: url.toString() };
+    } catch (e) {
+      return { 
+        isValid: false, 
+        sanitizedUrl: trimmed, 
+        error: 'invalid URL format.' 
+      };
+    }
+  }
+
+  if (isSoundcloud) {
+    try {
+      let urlString = trimmed;
+      if (!/^https?:\/\//i.test(urlString)) {
+        urlString = 'https://' + urlString;
+      }
+
+      const url = new URL(urlString);
+      
+      if (url.hostname === 'on.soundcloud.com' || url.hostname.endsWith('.on.soundcloud.com')) {
+        const cleanUrl = new URL(url.origin + url.pathname);
+        return { isValid: true, sanitizedUrl: cleanUrl.toString() };
+      }
+
+      const segments = url.pathname.split('/').filter(Boolean);
+      
+      if (segments.length !== 2) {
+        return {
+          isValid: false,
+          sanitizedUrl: trimmed,
+          error: 'soundcloud playlists, albums, sets, and profiles are not supported. please enter a single track link.'
+        };
+      }
+
+      const reservedWords = ['sets', 'stations', 'likes', 'tracks', 'albums', 'playlists', 'reposts', 'comments', 'groups', 'messages', 'popular', 'you'];
+      if (reservedWords.includes(segments[1].toLowerCase()) || reservedWords.includes(segments[0].toLowerCase())) {
+        return {
+          isValid: false,
+          sanitizedUrl: trimmed,
+          error: 'please enter a single track link.'
+        };
+      }
+
+      const cleanUrl = new URL(url.origin + url.pathname);
+      return { isValid: true, sanitizedUrl: cleanUrl.toString() };
+    } catch (e) {
+      return {
+        isValid: false,
+        sanitizedUrl: trimmed,
+        error: 'invalid SoundCloud URL.'
+      };
+    }
+  }
+
+  return { isValid: false, sanitizedUrl: trimmed };
+};
 
 const handleAnimationComplete = () => {
   console.log('all letters have animated!');
@@ -87,8 +225,17 @@ export default function Download() {
   const [audioComboboxOpen, setAudioComboboxOpen] = useState(false);
   const [cookiesBrowser, setCookiesBrowser] = useState('none');
 
-  const isValidLink = YOUTUBE_REGEX.test(link.trim());
-  const isDownloadDisabled = loading || loadingInfo || (isValidLink && !videoInfo);
+  const { isValid: isValidLink, sanitizedUrl, error: validationError } = sanitizeAndValidateUrl(link);
+  const isYoutubeLink = YOUTUBE_REGEX.test(link.trim()) || link.includes('youtube.com') || link.includes('youtu.be');
+  const isSoundcloudLink = SOUNDCLOUD_REGEX.test(link.trim()) || link.includes('soundcloud.com');
+  const isDownloadDisabled = loading || loadingInfo || !isValidLink || (isValidLink && !videoInfo);
+
+  // Auto-switch to audio format if SoundCloud link is detected
+  useEffect(() => {
+    if (isSoundcloudLink && format !== 'audio') {
+      handleFormatChange('audio');
+    }
+  }, [link, isSoundcloudLink, format]);
 
   // load download path from settings
   useEffect(() => {
@@ -190,7 +337,7 @@ export default function Download() {
 
   // fetch video options when link changes
   useEffect(() => {
-    if (YOUTUBE_REGEX.test(link.trim())) {
+    if (isValidLink) {
       const fetchInfo = async () => {
         setLoadingInfo(true);
         setVideoInfo(null);
@@ -200,7 +347,7 @@ export default function Download() {
           const currentBrowser = await activeStore.get<string>('cookiesBrowser') || 'none';
           const cookiesFile = await activeStore.get<string>('cookiesFilePath') || null;
           const result = await invoke('get_video_info', { 
-            url: link.trim(),
+            url: sanitizedUrl,
             cookiesBrowser: currentBrowser === 'none' ? null : currentBrowser,
             cookiesFile: currentBrowser === 'custom' ? cookiesFile : null
           });
@@ -230,16 +377,11 @@ export default function Download() {
       setSelectedFormatId('');
       setLoadingInfo(false);
     }
-  }, [link]);
+  }, [link, isValidLink, sanitizedUrl]);
 
   const handleDownload = async () => {
-    if (!link.trim()) {
-      toast.error('please enter a valid youtube link son');
-      return;
-    }
-
-    if (!YOUTUBE_REGEX.test(link.trim())){
-      toast.error('please enter a valid youtube link son');
+    if (!isValidLink) {
+      toast.error(validationError || 'please enter a valid youtube link son');
       return;
     }
 
@@ -251,7 +393,7 @@ export default function Download() {
       const currentBrowser = await activeStore.get<string>('cookiesBrowser') || 'none';
       const cookiesFile = await activeStore.get<string>('cookiesFilePath') || null;
       const result = await invoke('download_video', {
-        url: link,
+        url: sanitizedUrl,
         format: format === 'audio' ? (selectedFormatId || 'audio-320k') : (selectedFormatId || 'video'),
         downloadPath: downloadPath,
         cookiesBrowser: currentBrowser === 'none' ? null : currentBrowser,
@@ -299,6 +441,7 @@ export default function Download() {
             <Button 
               variant={format === 'video' ? 'default' : 'outline'}
               onClick={() => handleFormatChange('video')}
+              disabled={isSoundcloudLink}
               size="lg"
               className="flex-1 font-semibold text-sm h-11"
             >
@@ -315,14 +458,33 @@ export default function Download() {
           </div>
 
           <div className="flex w-full items-center space-x-3 mt-1">
-            <Input
-              type="text"
-              placeholder="enter youtube link"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              disabled={loading}
-              className="h-12 px-4 text-sm"
-            />
+            <div className="relative flex-1 flex items-center">
+              {isYoutubeLink && (
+                <div className="absolute left-3.5 flex items-center justify-center pointer-events-none text-red-500 animate-in zoom-in-75 duration-200">
+                  <YoutubeIcon className="w-5 h-5" />
+                </div>
+              )}
+              {isSoundcloudLink && (
+                <div className="absolute left-3.5 flex items-center justify-center pointer-events-none animate-in zoom-in-75 duration-200">
+                  <img 
+                    src={soundcloudLogo} 
+                    alt="SoundCloud logo" 
+                    className="w-5 h-5 object-contain"
+                  />
+                </div>
+              )}
+              <Input
+                type="text"
+                placeholder="enter youtube or soundcloud link"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                disabled={loading}
+                className={cn(
+                  "h-12 text-sm flex-1 transition-all duration-200",
+                  (isYoutubeLink || isSoundcloudLink) ? "pl-11 pr-4" : "px-4"
+                )}
+              />
+            </div>
             <Button 
               onClick={handleDownload} 
               disabled={isDownloadDisabled}
@@ -340,9 +502,15 @@ export default function Download() {
             </Button>
           </div>
 
-          <p className="text-[11px] text-muted-foreground/60 italic text-center mt-1">
-            * playlist support coming soon maybe
-          </p>
+          {link.trim() !== '' && !isValidLink ? (
+            <p className="text-[11px] text-destructive italic text-center mt-1">
+              {validationError}
+            </p>
+          ) : (
+            <p className="text-[11px] text-muted-foreground/60 italic text-center mt-1">
+              * playlist support coming soon maybe
+            </p>
+          )}
 
           {cookiesBrowser === 'none' && (
             <div className="text-[11px] text-amber-500/90 border border-amber-500/20 bg-amber-500/5 px-3 py-2.5 rounded-lg text-center mt-1 font-medium flex items-center justify-center gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
@@ -354,7 +522,7 @@ export default function Download() {
           {loadingInfo && (
             <div className="w-full mt-2 p-5 border rounded-xl bg-card/25 backdrop-blur-sm flex items-center justify-center gap-3.5 shadow-sm">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              <span className="text-sm text-muted-foreground animate-pulse">fetching video options...</span>
+              <span className="text-sm text-muted-foreground animate-pulse">fetching media options...</span>
             </div>
           )}
 

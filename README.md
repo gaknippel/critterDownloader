@@ -40,6 +40,12 @@ https://github.com/gaknippel/critterDownloader/releases
 
 ---
 # patch notes!
+## v1.2.2 - july 3, 2026
+- soundcloud links are supported now! also refined the link filtering feature.
+
+---
+
+
 ## v1.2.1 - june 28, 2026
 - added an option to use cookies from your browser if signed in on youtube to bypass youtube's bot-checking encryptions. still in beta so it might be broken. 
 

@@ -22,7 +22,7 @@ const items = [
     value: "item-2",
     trigger: "what is this app?",
     content:
-      "this is a youtube downloader! sick of all those sketchy websites or paid subscriptions for a basic feature? use this!",
+      "this is a media downloader! (for youtube & soundcloud at the moment) sick of all those sketchy websites or paid subscriptions for a basic feature? use this!",
   },
   {
     value: "item-3",
