@@ -1,3 +1,10 @@
+## v1.2.3 - july 26, 2026
+- small UI overhaul, + you can now set a download complete notification chime!
+it can be a custom one or the default one.
+
+---
+
+
 ## v1.2.2 - july 3, 2026
 - soundcloud links are supported now! also refined the link filtering feature.
 

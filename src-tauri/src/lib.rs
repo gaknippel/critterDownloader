@@ -1,6 +1,21 @@
 use tauri::command;
 use tauri::Manager;
+use tauri::Emitter;
 use std::process::{Command, Stdio};
+use std::sync::Mutex;
+
+struct AudioState {
+    sink: Mutex<Option<rodio::Sink>>,
+    stream_handle: Option<rodio::OutputStreamHandle>,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct ProgressPayload {
+    progress: f32,
+    eta: String,
+    speed: String,
+}
+
 
 fn find_yt_dlp(app_handle: &tauri::AppHandle) -> Result<String, String> {
     #[cfg(target_os = "windows")]
@@ -119,7 +134,7 @@ async fn download_video(
         "~/Downloads/%(title)s.%(ext)s".to_string()
     };
     
-    let result = tokio::task::spawn_blocking(move || {
+    let result = tokio::task::spawn_blocking(move || -> Result<std::process::Output, String> {
         let mut cmd = Command::new(&yt_dlp_path);
         
         // hide annoying console window on windows
@@ -130,9 +145,10 @@ async fn download_video(
             cmd.creation_flags(CREATE_NO_WINDOW);
         }
         
-        // suppress output
-        cmd.stdout(Stdio::null())
-           .stderr(Stdio::piped());
+        // redirect output
+        cmd.stdout(Stdio::piped())
+           .stderr(Stdio::piped())
+           .arg("--newline");
         
         if format.starts_with("audio") {
             cmd.arg("-x")
@@ -194,7 +210,48 @@ async fn download_video(
                .arg(&url);
         }
         
-        cmd.output()
+        let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn yt-dlp: {}", e))?;
+        
+        if let Some(stdout) = child.stdout.take() {
+            let reader = std::io::BufReader::new(stdout);
+            use std::io::BufRead;
+            for line_res in reader.lines() {
+                if let Ok(line) = line_res {
+                    if line.starts_with("[download]") {
+                        if let Some(percent_idx) = line.find('%') {
+                            let start_idx = "[download]".len();
+                            let percent_str = &line[start_idx..percent_idx].trim();
+                            if let Ok(percent) = percent_str.parse::<f32>() {
+                                let speed = if let Some(at_idx) = line.find(" at ") {
+                                    if let Some(eta_idx) = line.find(" ETA ") {
+                                        line[at_idx + 4..eta_idx].trim().to_string()
+                                    } else {
+                                        "".to_string()
+                                    }
+                                } else {
+                                    "".to_string()
+                                };
+
+                                let eta = if let Some(eta_idx) = line.find(" ETA ") {
+                                    line[eta_idx + 5..].trim().to_string()
+                                } else {
+                                    "".to_string()
+                                };
+
+                                app_handle.emit("download-progress", ProgressPayload {
+                                    progress: percent,
+                                    eta,
+                                    speed,
+                                }).ok();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        let output = child.wait_with_output().map_err(|e| format!("Failed to wait for yt-dlp: {}", e))?;
+        Ok(output)
     })
     .await
     .map_err(|e| format!("Task failed: {}", e))?;
@@ -361,8 +418,92 @@ async fn get_video_info(
     }
 }
 
+#[command]
+async fn play_sound(
+    audio_state: tauri::State<'_, AudioState>,
+    sound_path: Option<String>,
+    volume: Option<f32>
+) -> Result<(), String> {
+    let inner = audio_state.inner();
+    let stream_handle = match &inner.stream_handle {
+        Some(h) => h.clone(),
+        None => return Err("No audio output device available".to_string()),
+    };
+
+    // Stop any currently playing sound first
+    if let Ok(mut guard) = inner.sink.lock() {
+        if let Some(sink) = guard.take() {
+            sink.stop();
+        }
+    }
+
+    let result = tokio::task::spawn_blocking(move || -> Result<rodio::Sink, String> {
+        let sink = match rodio::Sink::try_new(&stream_handle) {
+            Ok(val) => val,
+            Err(e) => return Err(format!("Failed to create audio sink: {}", e)),
+        };
+
+        if let Some(vol) = volume {
+            sink.set_volume(vol);
+        } else {
+            sink.set_volume(0.5);
+        }
+
+        if let Some(path) = sound_path {
+            if !path.is_empty() && path != "default" {
+                let file = std::fs::File::open(&path)
+                    .map_err(|e| format!("Failed to open custom sound file: {}", e))?;
+                let source = rodio::Decoder::new(std::io::BufReader::new(file))
+                    .map_err(|e| format!("Failed to decode custom sound file: {}", e))?;
+                sink.append(source);
+                return Ok(sink);
+            }
+        }
+
+        // Default sound: embed the mp3 file
+        let default_sound_bytes = include_bytes!("../../src/assets/downloadComplete.mp3");
+        let cursor = std::io::Cursor::new(default_sound_bytes);
+        let source = rodio::Decoder::new(cursor)
+            .map_err(|e| format!("Failed to decode default sound file: {}", e))?;
+        sink.append(source);
+        Ok(sink)
+    })
+    .await
+    .map_err(|e| format!("Task join error: {}", e))?;
+
+    match result {
+        Ok(sink) => {
+            if let Ok(mut guard) = inner.sink.lock() {
+                *guard = Some(sink);
+            }
+            Ok(())
+        }
+        Err(e) => Err(e),
+    }
+}
+
+#[command]
+fn stop_sound(audio_state: tauri::State<'_, AudioState>) {
+    let inner = audio_state.inner();
+    if let Ok(mut guard) = inner.sink.lock() {
+        if let Some(sink) = guard.take() {
+            sink.stop();
+        }
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let (stream, stream_handle) = match rodio::OutputStream::try_default() {
+        Ok((s, h)) => (Some(s), Some(h)),
+        Err(_) => (None, None),
+    };
+
+    let audio_state = AudioState {
+        sink: Mutex::new(None),
+        stream_handle,
+    };
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
@@ -371,7 +512,11 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![download_video, update_ytdlp, get_video_info])
+        .manage(audio_state)
+        .invoke_handler(tauri::generate_handler![download_video, update_ytdlp, get_video_info, play_sound, stop_sound])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    // Explicitly drop stream on exit to keep it alive for the duration of run()
+    drop(stream);
 }

@@ -4,9 +4,10 @@ import SplitText from '../../components/SplitText'
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { Store } from '@tauri-apps/plugin-store';
 import { Button } from '@/components/ui/button';
-import { Loader2, History, Check, ChevronsUpDown } from 'lucide-react';
+import { Loader2, History, Check, ChevronsUpDown, FolderOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { open } from '@tauri-apps/plugin-dialog';
 import {
@@ -30,7 +31,6 @@ import {
 
 import { downloadDir } from '@tauri-apps/api/path'; 
 import blackCat from '../../assets/blackCat.gif';
-import soundcloudLogo from '../../assets/soundcloudLogo.png';
 
 interface YtDlpFormat {
   format_id: string;
@@ -71,17 +71,7 @@ const extractResolutions = (formats: YtDlpFormat[]) => {
 const YOUTUBE_REGEX = /^(https?:\/\/)?((www|m|music|gaming)\.)?(youtube\.com\/(watch\?|shorts\/|live\/|v\/|embed\/)|youtu\.be\/).+$/;
 const SOUNDCLOUD_REGEX = /^(https?:\/\/)?(((www|m)\.)?soundcloud\.com|on\.soundcloud\.com)\/.+$/;
 
-const YoutubeIcon = ({ className }: { className?: string }) => (
-  <svg 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" fill="#EF4444" stroke="#EF4444" strokeWidth="2" strokeLinejoin="round" />
-    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white" stroke="white" strokeWidth="1" />
-  </svg>
-);
+// YoutubeIcon has been removed in favor of official CDN SVGs
 
 const sanitizeAndValidateUrl = (rawUrl: string): { isValid: boolean; sanitizedUrl: string; error?: string } => {
   const trimmed = rawUrl.trim();
@@ -224,6 +214,9 @@ export default function Download() {
   const [videoComboboxOpen, setVideoComboboxOpen] = useState(false);
   const [audioComboboxOpen, setAudioComboboxOpen] = useState(false);
   const [cookiesBrowser, setCookiesBrowser] = useState('none');
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  const [downloadSpeed, setDownloadSpeed] = useState<string>('');
+  const [downloadEta, setDownloadEta] = useState<string>('');
 
   const { isValid: isValidLink, sanitizedUrl, error: validationError } = sanitizeAndValidateUrl(link);
   const isYoutubeLink = YOUTUBE_REGEX.test(link.trim()) || link.includes('youtube.com') || link.includes('youtu.be');
@@ -385,10 +378,20 @@ export default function Download() {
       return;
     }
 
-
     setLoading(true);
+    setDownloadProgress(0);
+    setDownloadSpeed('');
+    setDownloadEta('');
+
+    let unlisten: (() => void) | null = null;
 
     try {
+      unlisten = await listen<{ progress: number; speed: string; eta: string }>('download-progress', (event) => {
+        setDownloadProgress(event.payload.progress);
+        setDownloadSpeed(event.payload.speed);
+        setDownloadEta(event.payload.eta);
+      });
+
       const activeStore = store || await Store.load('settings.json');
       const currentBrowser = await activeStore.get<string>('cookiesBrowser') || 'none';
       const cookiesFile = await activeStore.get<string>('cookiesFilePath') || null;
@@ -401,6 +404,18 @@ export default function Download() {
       });
       toast.success('download complete! :D stored in: ' + downloadPath);
       console.log('download result : ', result);
+
+      const soundEnabled = await activeStore.get<boolean>('soundEnabled') !== false;
+      const soundType = await activeStore.get<string>('soundType') || 'default';
+      const soundFilePath = await activeStore.get<string>('soundFilePath') || '';
+      const soundVolume = await activeStore.get<number>('soundVolume');
+
+      if (soundEnabled) {
+        invoke('play_sound', {
+          soundPath: soundType === 'custom' ? soundFilePath : 'default',
+          volume: soundVolume !== undefined ? soundVolume : 0.5
+        }).catch(err => console.error('Failed to play completion sound:', err));
+      }
     }
     catch (error) {
       toast.error(String(error));
@@ -408,6 +423,12 @@ export default function Download() {
     }
     finally {
       setLoading(false);
+      setDownloadProgress(null);
+      setDownloadSpeed('');
+      setDownloadEta('');
+      if (unlisten) {
+        unlisten();
+      }
     }
   };
 
@@ -437,37 +458,50 @@ export default function Download() {
         
     <div className="download-form-container">
         <div className="flex flex-col w-full max-w-md m-auto space-y-5">
-          <div className="flex gap-3 mt-4 w-full">
-            <Button 
-              variant={format === 'video' ? 'default' : 'outline'}
+          
+          {/* Format Selector (Segmented Pills) */}
+          <div className="flex bg-muted/40 p-0.5 rounded-lg border border-border/30 w-full max-w-[280px] mx-auto mt-2">
+            <button
+              type="button"
               onClick={() => handleFormatChange('video')}
               disabled={isSoundcloudLink}
-              size="lg"
-              className="flex-1 font-semibold text-sm h-11"
+              className={`flex-1 text-xs py-2 rounded-md font-semibold transition-all ${
+                format === 'video'
+                  ? 'bg-background shadow-xs text-foreground border border-border/10'
+                  : 'text-muted-foreground hover:text-foreground disabled:opacity-30'
+              }`}
             >
               video + audio
-            </Button>
-            <Button 
-              variant={format === 'audio' ? 'default' : 'outline'}
+            </button>
+            <button
+              type="button"
               onClick={() => handleFormatChange('audio')}
-              size="lg"
-              className="flex-1 font-semibold text-sm h-11"
+              className={`flex-1 text-xs py-2 rounded-md font-semibold transition-all ${
+                format === 'audio'
+                  ? 'bg-background shadow-xs text-foreground border border-border/10'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
               audio only
-            </Button>
+            </button>
           </div>
 
-          <div className="flex w-full items-center space-x-3 mt-1">
+          {/* URL Input container */}
+          <div className="flex w-full items-center space-x-3">
             <div className="relative flex-1 flex items-center">
               {isYoutubeLink && (
-                <div className="absolute left-3.5 flex items-center justify-center pointer-events-none text-red-500 animate-in zoom-in-75 duration-200">
-                  <YoutubeIcon className="w-5 h-5" />
+                <div className="absolute left-3.5 flex items-center justify-center pointer-events-none animate-in zoom-in-75 duration-200">
+                  <img 
+                    src="https://cdn.jsdelivr.net/gh/gilbarbara/logos@master/logos/youtube-icon.svg" 
+                    alt="YouTube logo" 
+                    className="w-5 h-5 object-contain"
+                  />
                 </div>
               )}
               {isSoundcloudLink && (
                 <div className="absolute left-3.5 flex items-center justify-center pointer-events-none animate-in zoom-in-75 duration-200">
                   <img 
-                    src={soundcloudLogo} 
+                    src="https://cdn.jsdelivr.net/gh/gilbarbara/logos@master/logos/soundcloud.svg" 
                     alt="SoundCloud logo" 
                     className="w-5 h-5 object-contain"
                   />
@@ -502,6 +536,7 @@ export default function Download() {
             </Button>
           </div>
 
+          {/* Validation/Playlist Notes */}
           {link.trim() !== '' && !isValidLink ? (
             <p className="text-[11px] text-destructive italic text-center mt-1">
               {validationError}
@@ -512,41 +547,72 @@ export default function Download() {
             </p>
           )}
 
+          {/* Cookies source warning */}
           {cookiesBrowser === 'none' && (
             <div className="text-[11px] text-amber-500/90 border border-amber-500/20 bg-amber-500/5 px-3 py-2.5 rounded-lg text-center mt-1 font-medium flex items-center justify-center gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
               <span>⚠️ cookies source is currently disabled! you might run into download blocks since youtube thinks you're a bot. configure it in settings.</span>
             </div>
           )}
 
-          {/* Info Card / Loader */}
-          {loadingInfo && (
-            <div className="w-full mt-2 p-5 border rounded-xl bg-card/25 backdrop-blur-sm flex items-center justify-center gap-3.5 shadow-sm">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              <span className="text-sm text-muted-foreground animate-pulse">fetching media options...</span>
+          {/* Download Progress Card */}
+          {loading && downloadProgress !== null && (
+            <div className="w-full mt-2 p-4 border border-border/40 rounded-xl bg-muted/10 backdrop-blur-sm flex flex-col gap-3 shadow-sm text-left animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="flex justify-between items-center text-xs font-semibold text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                  downloading media file...
+                </span>
+                <span className="font-mono text-foreground font-bold">
+                  {downloadProgress.toFixed(1)}%
+                </span>
+              </div>
+              
+              <div className="w-full bg-muted/40 h-2 rounded-full overflow-hidden border border-border/10">
+                <div 
+                  className="bg-primary h-full rounded-full transition-all duration-150 ease-out" 
+                  style={{ width: `${downloadProgress}%` }}
+                />
+              </div>
+
+              {(downloadSpeed || downloadEta) && (
+                <div className="flex justify-between text-[10px] text-muted-foreground/85 font-mono pt-0.5">
+                  <span className="truncate pr-2">speed: {downloadSpeed || 'calculating...'}</span>
+                  <span className="shrink-0">eta: {downloadEta || 'calculating...'}</span>
+                </div>
+              )}
             </div>
           )}
 
+          {/* Info Card / Loader */}
+          {loadingInfo && (
+            <div className="w-full mt-2 p-5 border border-border/40 rounded-xl bg-muted/10 backdrop-blur-sm flex items-center justify-center gap-3.5 shadow-sm animate-pulse">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <span className="text-sm text-muted-foreground animate-pulse font-medium">fetching media options...</span>
+            </div>
+          )}
+
+          {/* Video Preview Card */}
           {videoInfo && !loadingInfo && (
-            <div className="w-full mt-2 p-5 border rounded-xl bg-card/40 backdrop-blur-sm flex flex-col gap-4 shadow-sm text-left">
-              <div className="flex gap-4">
+            <div className="w-full mt-2 p-4 border border-border/40 rounded-xl bg-muted/10 backdrop-blur-sm flex flex-col gap-4 shadow-sm text-left animate-in fade-in duration-200">
+              <div className="flex gap-4 animate-in slide-in-from-top-1 duration-200">
                 <img 
                   src={videoInfo.thumbnail} 
                   alt={videoInfo.title} 
-                  className="w-32 h-20 object-cover rounded-lg border bg-muted shrink-0"
+                  className="w-28 h-16 object-cover rounded-lg border border-border bg-muted shrink-0 transition-transform duration-200 hover:scale-[1.02]"
                 />
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                   <h4 className="text-sm font-semibold text-foreground line-clamp-2 leading-snug">
                     {videoInfo.title}
                   </h4>
-                  <p className="text-xs text-muted-foreground mt-1.5 font-mono">
+                  <p className="text-xs text-muted-foreground mt-1 font-mono">
                     duration: {videoInfo.duration_string}
                   </p>
                 </div>
               </div>
 
               {format === 'video' && (
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground font-bold tracking-wider">
+                <div className="flex flex-col gap-1.5 pt-3 border-t border-border/20">
+                  <label className="text-xs text-muted-foreground font-semibold">
                     select video quality
                   </label>
                   <Popover open={videoComboboxOpen} onOpenChange={setVideoComboboxOpen}>
@@ -555,7 +621,7 @@ export default function Download() {
                         variant="outline"
                         role="combobox"
                         aria-expanded={videoComboboxOpen}
-                        className="w-full justify-between h-10 px-3 bg-muted/30 hover:bg-muted/50 font-normal border border-input rounded-md"
+                        className="w-full justify-between h-9 px-3 bg-muted/20 hover:bg-muted/40 font-normal border border-input rounded-md text-xs"
                       >
                         <span className="truncate">
                           {(() => {
@@ -605,8 +671,8 @@ export default function Download() {
               )}
 
               {format === 'audio' && (
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground font-bold tracking-wider">
+                <div className="flex flex-col gap-1.5 pt-3 border-t border-border/20">
+                  <label className="text-xs text-muted-foreground font-semibold">
                     select audio quality
                   </label>
                   <Popover open={audioComboboxOpen} onOpenChange={setAudioComboboxOpen}>
@@ -615,7 +681,7 @@ export default function Download() {
                         variant="outline"
                         role="combobox"
                         aria-expanded={audioComboboxOpen}
-                        className="w-full justify-between h-10 px-3 bg-muted/30 hover:bg-muted/50 font-normal border border-input rounded-md"
+                        className="w-full justify-between h-9 px-3 bg-muted/20 hover:bg-muted/40 font-normal border border-input rounded-md text-xs"
                       >
                         <span className="truncate">
                           {(() => {
@@ -670,24 +736,26 @@ export default function Download() {
             </div>
           )}
 
+          {/* Download Destination Section */}
           {downloadPath !== null && (
-            <div className="flex flex-col space-y-1.5 text-left w-full mt-2">
-              <label htmlFor="download-path" className="text-xs text-muted-foreground font-bold  tracking-wider">
-                file destination!
-              </label>
-              <div className="flex gap-2.5 w-full">
+            <div className="bg-muted/10 border border-border/40 rounded-xl p-4 space-y-3 text-left animate-in fade-in duration-200">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium">download destination</span>
+                <span className="text-xs text-muted-foreground">where your downloaded file will be saved.</span>
+              </div>
+              <div className="flex gap-2 pt-1">
                 <div className="relative flex-1 flex gap-2">
                   <Input 
                     id="download-path" 
                     value={downloadPath} 
                     placeholder="select a folder" 
                     readOnly 
-                    className="text-sm h-10 bg-muted/40 px-3 flex-1"
+                    className="text-xs font-mono h-9 bg-muted/20"
                   />
                   {pathHistory.length > 0 && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="icon" className="h-10 w-10 shrink-0" title="Recent destinations">
+                        <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" title="Recent destinations">
                           <History className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -709,7 +777,8 @@ export default function Download() {
                     </DropdownMenu>
                   )}
                 </div>
-                <Button variant="outline" size="sm" onClick={handleBrowse} className="h-10 px-4">
+                <Button variant="outline" size="sm" onClick={handleBrowse} className="flex items-center gap-1.5 h-9 shrink-0">
+                  <FolderOpen className="h-4 w-4" />
                   browse
                 </Button>
               </div>

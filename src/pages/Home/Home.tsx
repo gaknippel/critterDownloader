@@ -113,7 +113,7 @@ export default function Home() {
 
           <div className="space-y-3 w-full max-w-sm">
             <p className="text-sm text-muted-foreground">
-              sick and tired of all those dogshit youtube downloaders? use this one!
+              sick and tired of all those dogshit online downloaders? use this one!
             </p>
             <Button 
               onClick={() => navigate('/download')} 
